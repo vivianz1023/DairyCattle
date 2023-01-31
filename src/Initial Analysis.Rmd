@@ -20,7 +20,7 @@ the following code segment provided by the client will calculate the elo ratings
 library(lubridate)
 library(EloRating)
 
-load("/Users/anniewang/Desktop/school/STAT 450/cow_data/replacement_with_THI.rda")
+load("../data/replacement_with_THI.rda")
 sub_repl <- replacement_THI
 sub_repl$index <- seq(1, nrow(sub_repl))
 
