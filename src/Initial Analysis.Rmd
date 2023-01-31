@@ -1,0 +1,49 @@
+---
+title: 'Group 3: Initial Analysis'
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(error = TRUE)
+library(tidyverse)
+library(ggplot2)
+```
+
+## 1. Loading the data 
+
+### Calculating Elo Score
+
+the following code segment provided by the client will calculate the elo ratings of cows
+
+```{r elo score, message=TRUE}
+library(lubridate)
+library(EloRating)
+
+load("/Users/anniewang/Desktop/school/STAT 450/cow_data/replacement_with_THI.rda")
+sub_repl <- replacement_THI
+sub_repl$index <- seq(1, nrow(sub_repl))
+
+## Order replacements
+elo.repl.list <- sub_repl[order(sub_repl$hour),c("Actor_cow", "Reactor_cow","hour", "Bin", "date")]
+colnames(elo.repl.list)=c("winner","loser","time","bin", "date")
+elo.repl.list$index <- seq(1, nrow(elo.repl.list))
+
+
+#Calculate the ELO scores 
+elo_package_result=elo.seq(winner=as.character(elo.repl.list$winner),
+                           loser=as.character(elo.repl.list$loser),
+                           Date=elo.repl.list$date,
+                           k=20,
+                           #presence=presence_comb,
+                           runcheck = F,
+                           progressbar=T)
+
+logtable <- elo_package_result[["logtable"]]
+logtable$index <- seq(1, nrow(logtable))
+
+logtable2 <- logtable[, c("winner","loser", "Apost","Bpost", "index")]
+
+logtable3 <- merge(logtable2, elo.repl.list)
+logtable3$bin <- NULL
+```
