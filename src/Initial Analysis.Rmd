@@ -47,3 +47,12 @@ logtable2 <- logtable[, c("winner","loser", "Apost","Bpost", "index")]
 logtable3 <- merge(logtable2, elo.repl.list)
 logtable3$bin <- NULL
 ```
+
+```{r bin ID, message=TRUE}
+feed_bin<-filter(replacement_THI, replacement_THI$Bin_type == 'Feed')
+max(feed_bin$Bin)
+min(feed_bin$Bin)
+water_bin<-filter(replacement_THI, replacement_THI$Bin_type == 'Water')
+max(water_bin$Bin)
+min(water_bin$Bin)
+```
