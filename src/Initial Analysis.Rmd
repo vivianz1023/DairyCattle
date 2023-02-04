@@ -8,18 +8,17 @@ knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_chunk$set(error = TRUE)
 library(tidyverse)
 library(ggplot2)
+library(lubridate)
+library(EloRating)
 ```
 
 ## 1. Loading the data 
 
 ### Calculating Elo Score
 
-the following code segment provided by the client will calculate the elo ratings of cows
+The following code segment provided by the client will calculate the elo ratings of cows (Those only need to be ran once).
 
 ```{r elo score, message=TRUE}
-library(lubridate)
-library(EloRating)
-
 load("../data/replacement_with_THI.rda")
 sub_repl <- replacement_THI
 sub_repl$index <- seq(1, nrow(sub_repl))
@@ -46,4 +45,37 @@ logtable2 <- logtable[, c("winner","loser", "Apost","Bpost", "index")]
 
 logtable3 <- merge(logtable2, elo.repl.list)
 logtable3$bin <- NULL
+
+write.csv(logtable, '../data/logtable.csv')
+write.csv(logtable2, '../data/logtable2.csv')
+write.csv(logtable3, '../data/logtable3.csv')
+```
+
+### Load tidy datasets
+Now the data is tidied up, This should be run everytime, we start to run this file.
+```{r load-logtables, message=TRUE}
+load("../data/replacement_with_THI.rda")
+logtable <- read.csv('../data/logtable.csv')
+logtable2 <- read.csv('../data/logtable2.csv')
+logtable3 <- read.csv('../data/logtable3.csv')
+
+```
+
+Generate/merge log table with the original dataset.
+```{r generate-analysis-table, message=TRUE}
+selected_repcement_THI <- replacement_THI %>% select(Bin, Bin_type, Bout_interval, THI_mean, THI_max, THI_min, index)
+selected_repcement_THI$index <-seq(1, nrow(selected_repcement_THI))
+cowrep <- selected_repcement_THI %>%
+          inner_join(logtable3, by = c("index"))
+head(cowrep)
+```
+## 2. EDA
+
+
+```{r EDA-1, message=TRUE}
+cowrep_THI_high <- cowrep %>% filter(THI_mean >= 75)
+cowrep_THI_low <- cowrep %>% filter(THI_mean < 75)
+nrow(cowrep_THI_high)
+nrow(cowrep_THI_low)
+
 ```
