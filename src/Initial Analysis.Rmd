@@ -18,9 +18,10 @@ library(EloRating)
 
 The following code segment provided by the client will calculate the elo ratings of cows (Those only need to be ran once).
 
-```{r elo score, message=TRUE}
+#### Elo score for Feed bin
+```{r elo score feed, message=TRUE}
 load("../data/replacement_with_THI.rda")
-sub_repl <- replacement_THI
+sub_repl <- replacement_THI %>% filter(Bin_type == 'Feed')
 sub_repl$index <- seq(1, nrow(sub_repl))
 
 ## Order replacements
@@ -38,44 +39,80 @@ elo_package_result=elo.seq(winner=as.character(elo.repl.list$winner),
                            runcheck = F,
                            progressbar=T)
 
-logtable <- elo_package_result[["logtable"]]
-logtable$index <- seq(1, nrow(logtable))
+logtable_feed <- elo_package_result[["logtable"]]
+logtable_feed$index <- seq(1, nrow(logtable_feed))
 
-logtable2 <- logtable[, c("winner","loser", "Apost","Bpost", "index")]
+logtable2_feed <- logtable_feed[, c("winner","loser", "Apost","Bpost", "index")]
 
-logtable3 <- merge(logtable2, elo.repl.list)
-logtable3$bin <- NULL
+logtable3_feed <- merge(logtable2_feed, elo.repl.list)
+logtable3_feed$bin <- NULL
 
-write.csv(logtable, '../data/logtable.csv')
-write.csv(logtable2, '../data/logtable2.csv')
-write.csv(logtable3, '../data/logtable3.csv')
+write.csv(logtable_feed, '../data/logtable_feed.csv')
+write.csv(logtable2_feed, '../data/logtable2_feed.csv')
+write.csv(logtable3_feed, '../data/logtable3_feed.csv')
+```
+
+#### Elo score for Water bin
+```{r elo score water, message=TRUE}
+load("../data/replacement_with_THI.rda")
+sub_repl <- replacement_THI %>% filter(Bin_type == 'Water')
+sub_repl$index <- seq(1, nrow(sub_repl))
+
+## Order replacements
+elo.repl.list <- sub_repl[order(sub_repl$hour),c("Actor_cow", "Reactor_cow","hour", "Bin", "date")]
+colnames(elo.repl.list)=c("winner","loser","time","bin", "date")
+elo.repl.list$index <- seq(1, nrow(elo.repl.list))
+
+
+#Calculate the ELO scores 
+elo_package_result=elo.seq(winner=as.character(elo.repl.list$winner),
+                           loser=as.character(elo.repl.list$loser),
+                           Date=elo.repl.list$date,
+                           k=20,
+                           #presence=presence_comb,
+                           runcheck = F,
+                           progressbar=T)
+
+logtable_water <- elo_package_result[["logtable"]]
+logtable_water$index <- seq(1, nrow(logtable_water))
+
+logtable2_water <- logtable_water[, c("winner","loser", "Apost","Bpost", "index")]
+
+logtable3_water <- merge(logtable2_water, elo.repl.list)
+logtable3_water$bin <- NULL
+
+write.csv(logtable_water, '../data/logtable_water.csv')
+write.csv(logtable2_water, '../data/logtable2_water.csv')
+write.csv(logtable3_water, '../data/logtable3_water.csv')
 ```
 
 ### Load tidy datasets
 Now the data is tidied up, This should be run everytime, we start to run this file.
 ```{r load-logtables, message=TRUE}
 load("../data/replacement_with_THI.rda")
-logtable <- read.csv('../data/logtable.csv')
-logtable2 <- read.csv('../data/logtable2.csv')
-logtable3 <- read.csv('../data/logtable3.csv')
-
+logtable3_water <- read.csv('../data/logtable3_water.csv')
+logtable3_feed <- read.csv('../data/logtable3_feed.csv')
 ```
 
 Generate/merge log table with the original dataset.
 ```{r generate-analysis-table, message=TRUE}
 selected_repcement_THI <- replacement_THI %>% select(Bin, Bin_type, Bout_interval, THI_mean, THI_max, THI_min, index)
 selected_repcement_THI$index <-seq(1, nrow(selected_repcement_THI))
-cowrep <- selected_repcement_THI %>%
-          inner_join(logtable3, by = c("index"))
-head(cowrep)
+cowrep_water <- selected_repcement_THI %>%
+          inner_join(logtable3_water, by = c("index"))
+head(cowrep_water)
+
+cowrep_feed <- selected_repcement_THI %>%
+          inner_join(logtable3_feed, by = c("index"))
+head(cowrep_feed)
 ```
+
 ## 2. EDA
 
-
 ```{r EDA-1, message=TRUE}
-cowrep_THI_high <- cowrep %>% filter(THI_mean >= 75)
-cowrep_THI_low <- cowrep %>% filter(THI_mean < 75)
-nrow(cowrep_THI_high)
-nrow(cowrep_THI_low)
+cowrep_THI_high_water <- cowrep_water %>% filter(THI_mean >= 75)
+cowrep_THI_low_water<- cowrep_water %>% filter(THI_mean < 75)
+cowrep_THI_high_feed <- cowrep_feed %>% filter(THI_mean >= 75)
+cowrep_THI_low_feed <- cowrep_feed %>% filter(THI_mean < 75)
 
 ```
