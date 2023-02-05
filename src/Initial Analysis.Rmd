@@ -96,15 +96,17 @@ logtable3_feed <- read.csv('../data/logtable3_feed.csv')
 
 Generate/merge log table with the original dataset.
 ```{r generate-analysis-table, message=TRUE}
-selected_repcement_THI <- replacement_THI %>% select(Bin, Bin_type, Bout_interval, THI_mean, THI_max, THI_min, index)
-selected_repcement_THI$index <-seq(1, nrow(selected_repcement_THI))
-cowrep_water <- selected_repcement_THI %>%
+replacement_THI_water <- replacement_THI %>% filter(Bin_type == 'Water')
+replacement_THI_water$index <-seq(1, nrow(replacement_THI_water))
+selected_repcement_THI_water <- replacement_THI_water %>% select(Bin, Bin_type, Bout_interval, THI_mean, THI_max, THI_min, index)
+cowrep_water <- selected_repcement_THI_water %>%
           inner_join(logtable3_water, by = c("index"))
-head(cowrep_water)
 
-cowrep_feed <- selected_repcement_THI %>%
+replacement_THI_feed <- replacement_THI %>% filter(Bin_type == 'Feed')
+replacement_THI_feed$index <-seq(1, nrow(replacement_THI_feed))
+selected_repcement_THI_feed <- replacement_THI_feed %>% select(Bin, Bin_type, Bout_interval, THI_mean, THI_max, THI_min, index)
+cowrep_feed <- selected_repcement_THI_feed %>%
           inner_join(logtable3_feed, by = c("index"))
-head(cowrep_feed)
 ```
 
 ## 2. EDA
@@ -115,4 +117,7 @@ cowrep_THI_low_water<- cowrep_water %>% filter(THI_mean < 75)
 cowrep_THI_high_feed <- cowrep_feed %>% filter(THI_mean >= 75)
 cowrep_THI_low_feed <- cowrep_feed %>% filter(THI_mean < 75)
 
+
+nrow(cowrep_feed)
+nrow(cowrep_water)
 ```
