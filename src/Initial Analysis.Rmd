@@ -151,8 +151,6 @@ check_consec_dates <-
 ```
 
 ```{r EDA-3, message=FALSE}
-
-
 check_consec_dates(cowrep_feed)
 check_consec_dates(cowrep_water)
 ```
