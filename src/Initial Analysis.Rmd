@@ -139,10 +139,20 @@ group_THI_List <- list(cowrep_THI_high_water,
                        cowrep_THI_high_feed,
                        cowrep_THI_low_feed)
 
-lapply(group_THI_List, function(group_THI) {
+lapply(group_THI_List, check_consec_dates)
+
+check_consec_dates <- 
+  function(group_THI) {
   group_THI <- group_THI[order(as.Date(group_THI$date, format="%Y-%m-%d")),]
   group_THI$consecutive <- c(NA,(diff(as.Date(group_THI$date))))
   group_THI <- group_THI %>% filter(consecutive > 1)
   return(group_THI)
-  })
+  }
+```
+
+```{r EDA-3, message=FALSE}
+
+
+check_consec_dates(cowrep_feed)
+check_consec_dates(cowrep_water)
 ```
