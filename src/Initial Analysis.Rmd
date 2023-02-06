@@ -112,12 +112,24 @@ cowrep_feed <- selected_repcement_THI_feed %>%
 ## 2. EDA
 
 ```{r EDA-1, message=TRUE}
-cowrep_THI_high_water <- cowrep_water %>% filter(THI_mean >= 75)
-cowrep_THI_low_water<- cowrep_water %>% filter(THI_mean < 75)
-cowrep_THI_high_feed <- cowrep_feed %>% filter(THI_mean >= 75)
-cowrep_THI_low_feed <- cowrep_feed %>% filter(THI_mean < 75)
+# check assumption (1) before we separate them into high/low THI
+18 * length(unique(c(unique(replacement_THI_water$Actor_cow), unique(replacement_THI_water$Reactor_cow)))) <= nrow(replacement_THI_water)
+18 * length(unique(c(unique(replacement_THI_feed$Actor_cow), unique(replacement_THI_feed$Reactor_cow)))) <= nrow(replacement_THI_feed)
 
 
-nrow(cowrep_feed)
-nrow(cowrep_water)
+# check assumption (1) after we separate them into high/low THI
+cowrep_THI_high_water <- cowrep_water %>% filter(THI_max >= 65)
+cowrep_THI_low_water<- cowrep_water %>% filter(THI_max < 65)
+cowrep_THI_high_feed <- cowrep_feed %>% filter(THI_max >= 65)
+cowrep_THI_low_feed <- cowrep_feed %>% filter(THI_max < 65)
+
+
+16 * length(unique(c(unique(cowrep_THI_high_water$winner), unique(cowrep_THI_high_water$loser)))) <= nrow(cowrep_THI_high_water)
+18 * length(unique(c(unique(cowrep_THI_low_water$winner), unique(cowrep_THI_low_water$loser)))) <= nrow(cowrep_THI_low_water)
+18 * length(unique(c(unique(cowrep_THI_high_feed$winner), unique(cowrep_THI_high_feed$loser)))) <= nrow(cowrep_THI_high_feed)
+18 * length(unique(c(unique(cowrep_THI_low_feed$winner), unique(cowrep_THI_low_feed$loser)))) <= nrow(cowrep_THI_low_feed)
+
+
+cowrep_THI_high_water %>% distinct(winner, loser)
+cowrep_THI_high_feed %>% distinct(winner, loser)
 ```
