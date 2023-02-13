@@ -8,20 +8,20 @@ knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_chunk$set(error = TRUE)
 library(tidyverse)
 library(ggplot2)
+library(lubridate)
+library(EloRating)
 ```
 
 ## 1. Loading the data 
 
 ### Calculating Elo Score
 
-the following code segment provided by the client will calculate the elo ratings of cows
+The following code segment provided by the client will calculate the elo ratings of cows (Those only need to be ran once).
 
-```{r elo score, message=TRUE}
-library(lubridate)
-library(EloRating)
-
+#### Elo score for Feed bin
+```{r elo score feed, message=TRUE}
 load("../data/replacement_with_THI.rda")
-sub_repl <- replacement_THI
+sub_repl <- replacement_THI %>% filter(Bin_type == 'Feed')
 sub_repl$index <- seq(1, nrow(sub_repl))
 
 ## Order replacements
@@ -39,20 +39,118 @@ elo_package_result=elo.seq(winner=as.character(elo.repl.list$winner),
                            runcheck = F,
                            progressbar=T)
 
-logtable <- elo_package_result[["logtable"]]
-logtable$index <- seq(1, nrow(logtable))
+logtable_feed <- elo_package_result[["logtable"]]
+logtable_feed$index <- seq(1, nrow(logtable_feed))
 
-logtable2 <- logtable[, c("winner","loser", "Apost","Bpost", "index")]
+logtable2_feed <- logtable_feed[, c("winner","loser", "Apost","Bpost", "index")]
 
-logtable3 <- merge(logtable2, elo.repl.list)
-logtable3$bin <- NULL
+logtable3_feed <- merge(logtable2_feed, elo.repl.list)
+logtable3_feed$bin <- NULL
+
+write.csv(logtable_feed, '../data/logtable_feed.csv')
+write.csv(logtable2_feed, '../data/logtable2_feed.csv')
+write.csv(logtable3_feed, '../data/logtable3_feed.csv')
 ```
 
-```{r bin ID, message=TRUE}
-feed_bin<-filter(replacement_THI, replacement_THI$Bin_type == 'Feed')
-max(feed_bin$Bin)
-min(feed_bin$Bin)
-water_bin<-filter(replacement_THI, replacement_THI$Bin_type == 'Water')
-max(water_bin$Bin)
-min(water_bin$Bin)
+#### Elo score for Water bin
+```{r elo score water, message=TRUE}
+load("../data/replacement_with_THI.rda")
+sub_repl <- replacement_THI %>% filter(Bin_type == 'Water')
+sub_repl$index <- seq(1, nrow(sub_repl))
+
+## Order replacements
+elo.repl.list <- sub_repl[order(sub_repl$hour),c("Actor_cow", "Reactor_cow","hour", "Bin", "date")]
+colnames(elo.repl.list)=c("winner","loser","time","bin", "date")
+elo.repl.list$index <- seq(1, nrow(elo.repl.list))
+
+
+#Calculate the ELO scores 
+elo_package_result=elo.seq(winner=as.character(elo.repl.list$winner),
+                           loser=as.character(elo.repl.list$loser),
+                           Date=elo.repl.list$date,
+                           k=20,
+                           #presence=presence_comb,
+                           runcheck = F,
+                           progressbar=T)
+
+logtable_water <- elo_package_result[["logtable"]]
+logtable_water$index <- seq(1, nrow(logtable_water))
+
+logtable2_water <- logtable_water[, c("winner","loser", "Apost","Bpost", "index")]
+
+logtable3_water <- merge(logtable2_water, elo.repl.list)
+logtable3_water$bin <- NULL
+
+write.csv(logtable_water, '../data/logtable_water.csv')
+write.csv(logtable2_water, '../data/logtable2_water.csv')
+write.csv(logtable3_water, '../data/logtable3_water.csv')
+```
+
+### Load tidy datasets
+Now the data is tidied up, This should be run everytime, we start to run this file.
+```{r load-logtables, message=TRUE}
+load("../data/replacement_with_THI.rda")
+logtable3_water <- read.csv('../data/logtable3_water.csv')
+logtable3_feed <- read.csv('../data/logtable3_feed.csv')
+```
+
+Generate/merge log table with the original dataset.
+```{r generate-analysis-table, message=TRUE}
+replacement_THI_water <- replacement_THI %>% filter(Bin_type == 'Water')
+replacement_THI_water$index <-seq(1, nrow(replacement_THI_water))
+selected_repcement_THI_water <- replacement_THI_water %>% select(Bin, Bin_type, Bout_interval, THI_mean, THI_max, THI_min, index)
+cowrep_water <- selected_repcement_THI_water %>%
+          inner_join(logtable3_water, by = c("index"))
+
+replacement_THI_feed <- replacement_THI %>% filter(Bin_type == 'Feed')
+replacement_THI_feed$index <-seq(1, nrow(replacement_THI_feed))
+selected_repcement_THI_feed <- replacement_THI_feed %>% select(Bin, Bin_type, Bout_interval, THI_mean, THI_max, THI_min, index)
+cowrep_feed <- selected_repcement_THI_feed %>%
+          inner_join(logtable3_feed, by = c("index"))
+```
+
+## 2. EDA
+
+```{r EDA-1, message=TRUE}
+# check assumption (1) before we separate them into high/low THI
+18 * length(unique(c(unique(replacement_THI_water$Actor_cow), unique(replacement_THI_water$Reactor_cow)))) <= nrow(replacement_THI_water)
+18 * length(unique(c(unique(replacement_THI_feed$Actor_cow), unique(replacement_THI_feed$Reactor_cow)))) <= nrow(replacement_THI_feed)
+
+
+# check assumption (1) after we separate them into high/low THI
+cowrep_THI_high_water <- cowrep_water %>% filter(THI_max >= 65)
+cowrep_THI_low_water<- cowrep_water %>% filter(THI_max < 65)
+cowrep_THI_high_feed <- cowrep_feed %>% filter(THI_max >= 65)
+cowrep_THI_low_feed <- cowrep_feed %>% filter(THI_max < 65)
+
+
+16 * length(unique(c(unique(cowrep_THI_high_water$winner), unique(cowrep_THI_high_water$loser)))) <= nrow(cowrep_THI_high_water)
+18 * length(unique(c(unique(cowrep_THI_low_water$winner), unique(cowrep_THI_low_water$loser)))) <= nrow(cowrep_THI_low_water)
+18 * length(unique(c(unique(cowrep_THI_high_feed$winner), unique(cowrep_THI_high_feed$loser)))) <= nrow(cowrep_THI_high_feed)
+18 * length(unique(c(unique(cowrep_THI_low_feed$winner), unique(cowrep_THI_low_feed$loser)))) <= nrow(cowrep_THI_low_feed)
+
+
+cowrep_THI_high_water %>% distinct(winner, loser)
+cowrep_THI_high_feed %>% distinct(winner, loser)
+```
+```{r EDA-2, message=FALSE}
+group_THI_List <- list(cowrep_THI_high_water,
+                       cowrep_THI_low_water,
+                       cowrep_THI_high_feed,
+                       cowrep_THI_low_feed)
+
+lapply(group_THI_List, check_consec_dates)
+
+check_consec_dates <- 
+  function(group_THI) {
+  group_THI <- group_THI[order(as.Date(group_THI$date, format="%Y-%m-%d")),]
+  group_THI$consecutive <- c(NA,(diff(as.Date(group_THI$date))))
+  group_THI <- group_THI %>% filter(consecutive > 1)
+  return(group_THI)
+  }
+```
+
+```{r EDA-3, message=FALSE}
+check_consec_dates(cowrep_feed)
+check_consec_dates(cowrep_water)
 ```
