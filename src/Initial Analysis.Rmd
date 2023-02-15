@@ -162,3 +162,16 @@ check_consec_dates <-
 check_consec_dates(cowrep_feed)
 check_consec_dates(cowrep_water)
 ```
+
+```{r EDA-4, message=FALSE}
+##optimize k
+ores_water <- optimizek(elo_res_water, krange = c(1, 100), resolution = 100)
+ores_water$best
+
+ores_feed <- optimizek(elo_res_feed, krange = c(1, 100), resolution = 100)
+ores_feed$best
+
+extract_elo(elo_res_water)
+extract_elo(elo_res_feed)
+```
+
