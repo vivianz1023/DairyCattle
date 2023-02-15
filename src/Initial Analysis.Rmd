@@ -29,8 +29,7 @@ elo.repl.list <- sub_repl[order(sub_repl$hour),c("Actor_cow", "Reactor_cow","hou
 colnames(elo.repl.list)=c("winner","loser","time","bin", "date")
 elo.repl.list$index <- seq(1, nrow(elo.repl.list))
 
-
-#Calculate the ELO scores 
+#Calculate the ELO scores
 elo_package_result=elo.seq(winner=as.character(elo.repl.list$winner),
                            loser=as.character(elo.repl.list$loser),
                            Date=elo.repl.list$date,
@@ -38,6 +37,8 @@ elo_package_result=elo.seq(winner=as.character(elo.repl.list$winner),
                            #presence=presence_comb,
                            runcheck = F,
                            progressbar=T)
+
+saveRDS(elo_package_result, "../data/elo_res_feed.rds")
 
 logtable_feed <- elo_package_result[["logtable"]]
 logtable_feed$index <- seq(1, nrow(logtable_feed))
