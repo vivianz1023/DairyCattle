@@ -81,17 +81,24 @@ logtable2_water <- logtable_water[, c("winner","loser", "Apost","Bpost", "index"
 logtable3_water <- merge(logtable2_water, elo.repl.list)
 logtable3_water$bin <- NULL
 
+saveRDS(elo_package_result, '../data/elo_res_water.rds')
 write.csv(logtable_water, '../data/logtable_water.csv')
 write.csv(logtable2_water, '../data/logtable2_water.csv')
 write.csv(logtable3_water, '../data/logtable3_water.csv')
 ```
+```{r optimizing k, message=TRUE}
+ores <- optimizek(elo_res_water, krange = c(10, 100), resolution = 491)
+ores$best
 
+```
 ### Load tidy datasets
 Now the data is tidied up, This should be run everytime, we start to run this file.
 ```{r load-logtables, message=TRUE}
 load("../data/replacement_with_THI.rda")
 logtable3_water <- read.csv('../data/logtable3_water.csv')
 logtable3_feed <- read.csv('../data/logtable3_feed.csv')
+elo_res_water <- readRDS('../data/elo_res_water.rds')
+elo_res_feed <- readRDS('../data/elo_res_feed.rds')
 ```
 
 Generate/merge log table with the original dataset.
