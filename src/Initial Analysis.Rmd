@@ -171,7 +171,12 @@ ores_water$best
 ores_feed <- optimizek(elo_res_feed, krange = c(1, 100), resolution = 100)
 ores_feed$best
 
-extract_elo(elo_res_water)
-extract_elo(elo_res_feed)
+last_elo_water <- extract_elo(elo_res_water)
+last_elo_feed <- extract_elo(elo_res_feed)
+
+sorted_last_elo_feed <- last_elo_feed[sort(names(last_elo_feed))]
+sorted_last_elo_water <- last_elo_water[sort(names(last_elo_water))]
+
+cor.test(x=unname(sorted_last_elo_water), y=unname(sorted_last_elo_feed), method = 'spearman')
 ```
 
