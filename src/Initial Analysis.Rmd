@@ -22,7 +22,7 @@ The following code segment provided by the client will calculate the elo ratings
 ```{r elo score feed, message=TRUE}
 load("../data/replacement_with_THI.rda")
 sub_repl <- replacement_THI %>% filter(Bin_type == 'Feed')
-sub_repl <- sub_repl[sample(1:nrow(data)),]
+sub_repl <- sub_repl[sample(1:nrow(sub_repl)),]
 sub_repl$index <- seq(1, nrow(sub_repl))
 
 ## Order replacements
@@ -58,7 +58,7 @@ write.csv(logtable3_feed, '../data/logtable3_feed.csv')
 ```{r elo score water, message=TRUE}
 load("../data/replacement_with_THI.rda")
 sub_repl <- replacement_THI %>% filter(Bin_type == 'Water')
-sub_repl <- sub_repl[sample(1:nrow(data)),]
+sub_repl <- sub_repl[sample(1:nrow(sub_repl)),]
 sub_repl$index <- seq(1, nrow(sub_repl))
 
 ## Order replacements
