@@ -18,11 +18,74 @@ library(EloRating)
 
 The following code segment provided by the client will calculate the elo ratings of cows (Those only need to be ran once).
 
+
+#### Elo score for Feed bin (Overall)
+```{r elo score feed, message=TRUE}
+load("../data/replacement_with_THI.rda")
+sub_repl <- replacement_THI %>% filter(Bin_type == 'Feed')
+#shuffle the rows
+#sub_repl <- sub_repl[sample(1:nrow(sub_repl)),]
+sub_repl$index <- seq(1, nrow(sub_repl))
+## Order replacements
+elo.repl.list <- sub_repl[order(sub_repl$hour),c("Actor_cow", "Reactor_cow","hour", "Bin", "date")]
+colnames(elo.repl.list)=c("winner","loser","time","bin", "date")
+elo.repl.list$index <- seq(1, nrow(elo.repl.list))
+#Calculate the ELO scores
+elo_package_result=elo.seq(winner=as.character(elo.repl.list$winner),
+                           loser=as.character(elo.repl.list$loser),
+                           Date=elo.repl.list$date,
+                           k=20,
+                           #presence=presence_comb,
+                           runcheck = F,
+                           progressbar=T)
+saveRDS(elo_package_result, "../data/elo_res_feed.rds")
+logtable_feed <- elo_package_result[["logtable"]]
+logtable_feed$index <- seq(1, nrow(logtable_feed))
+logtable2_feed <- logtable_feed[, c("winner","loser", "Apost","Bpost", "index")]
+logtable3_feed <- merge(logtable2_feed, elo.repl.list)
+logtable3_feed$bin <- NULL
+write.csv(logtable_feed, '../data/logtable_feed.csv')
+write.csv(logtable2_feed, '../data/logtable2_feed.csv')
+write.csv(logtable3_feed, '../data/logtable3_feed.csv')
+```
+
+#### Elo score for Water bin (Overall)
+```{r elo score water, message=TRUE}
+load("../data/replacement_with_THI.rda")
+sub_repl <- replacement_THI %>% filter(Bin_type == 'Water')
+#shuffle the rows
+#sub_repl <- sub_repl[sample(1:nrow(sub_repl)),]
+sub_repl$index <- seq(1, nrow(sub_repl))
+## Order replacements
+elo.repl.list <- sub_repl[order(sub_repl$hour),c("Actor_cow", "Reactor_cow","hour", "Bin", "date")]
+colnames(elo.repl.list)=c("winner","loser","time","bin", "date")
+elo.repl.list$index <- seq(1, nrow(elo.repl.list))
+#Calculate the ELO scores 
+elo_package_result=elo.seq(winner=as.character(elo.repl.list$winner),
+                           loser=as.character(elo.repl.list$loser),
+                           Date=elo.repl.list$date,
+                           k=20,
+                           #presence=presence_comb,
+                           runcheck = F,
+                           progressbar=T)
+logtable_water <- elo_package_result[["logtable"]]
+logtable_water$index <- seq(1, nrow(logtable_water))
+logtable2_water <- logtable_water[, c("winner","loser", "Apost","Bpost", "index")]
+logtable3_water <- merge(logtable2_water, elo.repl.list)
+logtable3_water$bin <- NULL
+saveRDS(elo_package_result, '../data/elo_res_water.rds')
+write.csv(logtable_water, '../data/logtable_water.csv')
+write.csv(logtable2_water, '../data/logtable2_water.csv')
+write.csv(logtable3_water, '../data/logtable3_water.csv')
+```
+
+
 #### Elo score for Feed bin (high THI)(THI_max >= 65)
 ```{r elo score feed, message=TRUE}
 load("../data/replacement_with_THI.rda")
 sub_repl <- replacement_THI %>% filter(Bin_type == 'Feed', THI_max >= 65)
-sub_repl <- sub_repl[sample(1:nrow(sub_repl)),]
+#shuffle the rows
+#sub_repl <- sub_repl[sample(1:nrow(sub_repl)),]
 sub_repl$index <- seq(1, nrow(sub_repl))
 
 ## Order replacements
@@ -34,7 +97,7 @@ elo.repl.list$index <- seq(1, nrow(elo.repl.list))
 elo_package_result=elo.seq(winner=as.character(elo.repl.list$winner),
                            loser=as.character(elo.repl.list$loser),
                            Date=elo.repl.list$date,
-                           k=6,
+                           k=8,
                            #presence=presence_comb,
                            runcheck = F,
                            progressbar=T)
@@ -58,7 +121,8 @@ write.csv(logtable3_feed, '../data/logtable3_feed_high_THI.csv')
 ```{r elo score feed, message=TRUE}
 load("../data/replacement_with_THI.rda")
 sub_repl <- replacement_THI %>% filter(Bin_type == 'Feed', THI_max < 65)
-sub_repl <- sub_repl[sample(1:nrow(sub_repl)),]
+#shuffle the rows
+#sub_repl <- sub_repl[sample(1:nrow(sub_repl)),]
 sub_repl$index <- seq(1, nrow(sub_repl))
 
 ## Order replacements
@@ -70,7 +134,7 @@ elo.repl.list$index <- seq(1, nrow(elo.repl.list))
 elo_package_result=elo.seq(winner=as.character(elo.repl.list$winner),
                            loser=as.character(elo.repl.list$loser),
                            Date=elo.repl.list$date,
-                           k=6,
+                           k=8,
                            #presence=presence_comb,
                            runcheck = F,
                            progressbar=T)
@@ -94,7 +158,8 @@ write.csv(logtable3_feed, '../data/logtable3_feed_low_THI.csv')
 ```{r elo score water, message=TRUE}
 load("../data/replacement_with_THI.rda")
 sub_repl <- replacement_THI %>% filter(Bin_type == 'Water', THI_max >= 65)
-sub_repl <- sub_repl[sample(1:nrow(sub_repl)),]
+#shuffle the rows
+#sub_repl <- sub_repl[sample(1:nrow(sub_repl)),]
 sub_repl$index <- seq(1, nrow(sub_repl))
 
 ## Order replacements
@@ -107,7 +172,7 @@ elo.repl.list$index <- seq(1, nrow(elo.repl.list))
 elo_package_result=elo.seq(winner=as.character(elo.repl.list$winner),
                            loser=as.character(elo.repl.list$loser),
                            Date=elo.repl.list$date,
-                           k=20,
+                           k=31,
                            #presence=presence_comb,
                            runcheck = F,
                            progressbar=T)
@@ -130,7 +195,8 @@ write.csv(logtable3_water, '../data/logtable3_water_high_THI.csv')
 ```{r elo score water, message=TRUE}
 load("../data/replacement_with_THI.rda")
 sub_repl <- replacement_THI %>% filter(Bin_type == 'Water', THI_max < 65)
-sub_repl <- sub_repl[sample(1:nrow(sub_repl)),]
+#shuffle the rows
+#sub_repl <- sub_repl[sample(1:nrow(sub_repl)),]
 sub_repl$index <- seq(1, nrow(sub_repl))
 
 ## Order replacements
@@ -143,7 +209,7 @@ elo.repl.list$index <- seq(1, nrow(elo.repl.list))
 elo_package_result=elo.seq(winner=as.character(elo.repl.list$winner),
                            loser=as.character(elo.repl.list$loser),
                            Date=elo.repl.list$date,
-                           k=20,
+                           k=23,
                            #presence=presence_comb,
                            runcheck = F,
                            progressbar=T)
@@ -252,14 +318,14 @@ elo_res_feed_low_THI <- readRDS('../data/elo_res_feed_low_THI.rds')
 elo_res_feed_high_THI <- readRDS('../data/elo_res_feed_high_THI.rds')
 
 
-ores_water_low_THI <- optimizek(elo_res_water_low_THI, krange = c(1, 100), resolution = 100)
-ores_water_low_THI$best
-ores_water_high_THI <- optimizek(elo_res_water_high_THI, krange = c(1, 100), resolution = 100)
-ores_water_high_THI$best
-ores_feed_low_THI <- optimizek(elo_res_feed_low_THI, krange = c(1, 100), resolution = 100)
-ores_feed_low_THI$best
-ores_feed_high_THI <- optimizek(elo_res_feed_high_THI, krange = c(1, 100), resolution = 100)
-ores_feed_high_THI$best
+#ores_water_low_THI <- optimizek(elo_res_water_low_THI, krange = c(1, 100), resolution = 100)
+#ores_water_low_THI$best
+#ores_water_high_THI <- optimizek(elo_res_water_high_THI, krange = c(1, 100), resolution = 100)
+#ores_water_high_THI$best
+#ores_feed_low_THI <- optimizek(elo_res_feed_low_THI, krange = c(1, 100), resolution = 100)
+#ores_feed_low_THI$best
+#ores_feed_high_THI <- optimizek(elo_res_feed_high_THI, krange = c(1, 100), resolution = 100)
+#ores_feed_high_THI$best
 
 
 last_elo_water <- extract_elo(elo_res_water)
