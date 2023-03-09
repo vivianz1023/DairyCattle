@@ -18,13 +18,221 @@ library(EloRating)
 
 The following code segment provided by the client will calculate the elo ratings of cows (Those only need to be ran once).
 
+#### Sampling replacements
+```{r elo score feed, message=TRUE}
+all_replacement_THI <- read.csv('../data/replacement_with_THI.csv')
+water <- all_replacement_THI %>% filter(Bin_type == 'Water')
+feed <- all_replacement_THI %>% filter(Bin_type == 'Feed')
+THI_threshold <- 65
+water_high <- all_replacement_THI %>% filter(Bin_type == 'Water', THI_max>=THI_threshold)
+water_low <- all_replacement_THI %>% filter(Bin_type == 'Water', THI_max<THI_threshold)
+feed_high <- all_replacement_THI %>% filter(Bin_type == 'Feed', THI_max>=THI_threshold)
+feed_low <- all_replacement_THI %>% filter(Bin_type == 'Feed', THI_max<THI_threshold)
+# water_high_groupby <- water_high %>% group_by(Actor_cow, Reactor_cow) %>% summarise(replacements = n(), .groups = 'drop')
+water_cows <- unique(water$Reactor_cow,water$Actor_cow)
+feed_cows <- unique(feed$Reactor_cow,feed$Actor_cow)
+intersection <- Reduce(intersect, list(water_cows,feed_cows))
+
+water_high_cows <- unique(water_high$Reactor_cow,water_high$Actor_cow)
+water_low_cows <- unique(water_low$Reactor_cow,water_low$Actor_cow)
+feed_high_cows <- unique(feed_high$Reactor_cow,feed_high$Actor_cow)
+feed_low_cows <-unique(feed_low$Reactor_cow,feed_low$Actor_cow)
+sub_intersection <- Reduce(intersect, list(water_high_cows, water_low_cows, feed_high_cows, feed_low_cows))
+
+water <- water %>%
+  filter(Actor_cow %in% intersection & Reactor_cow %in% intersection)
+
+feed <- feed %>%
+  filter(Actor_cow %in% intersection & Reactor_cow %in% intersection)
+
+water_high <- water_high %>%
+  filter(Actor_cow %in% sub_intersection & Reactor_cow %in% sub_intersection)
+
+water_low <- water_low %>%
+  filter(Actor_cow %in% sub_intersection & Reactor_cow %in% sub_intersection)
+
+feed_high <- feed_high %>%
+  filter(Actor_cow %in% sub_intersection & Reactor_cow %in% sub_intersection)
+
+feed_low <- feed_low %>%
+  filter(Actor_cow %in% sub_intersection & Reactor_cow %in% sub_intersection)
+
+# 
+# pairs <- unique(water_high$Reactor_cow * 10000 + water_high$Actor_cow)
+# 
+# water_high_groupby <- water_high_groupby %>%
+#   mutate(pair1 = Actor_cow * 10000 + Reactor_cow) %>%
+#   mutate(pair2 = Reactor_cow * 10000 + Actor_cow)
+
+# feed filter
+# replacement_THI <- all_replacement_THI %>% 
+#   mutate(pair1 = Actor_cow * 10000 + Reactor_cow) %>%
+#   mutate(pair2 = Reactor_cow * 10000 + Actor_cow) %>%
+#   filter(Bin_type == 'Feed') %>% 
+#   filter(pair1 %in% pairs | pair2 %in% pairs)
+
+# feed <- replacement_THI %>% filter(Bin_type == 'csjnskcj')
+
+# for (row in 1:nrow(water_high_groupby)) {
+#   i <-  water_high_groupby[row, "replacements"]
+#   r <- replacement_THI %>% 
+#       filter(pair1 == water_high_groupby[row, "pair1"]$pair1 | pair2 == water_high_groupby[row, "pair2"]$pair2)
+#   result <- r[sample(1:i$replacements),]
+#   feed <- rbind(feed, result)
+#   print(row)
+# }
+# 
+# write.csv(feed, '../data/filtered_feed.csv')
+
+
+
+```
+
+```{r elo loop, message=TRUE}
+water_feed_cor = 0;
+water_feed_high_cor = 0;
+water_feed_low_cor = 0;
+water_high_low_cor = 0;
+feed_high_low_cor = 0;
+num <- 1
+for (i in 1:num) {
+  # feed bins overall
+  sub_repl <- feed[sample(1:nrow(water)),]
+  sub_repl$index <- seq(1, nrow(sub_repl))
+  ## Order replacements
+  elo_repl_list <- sub_repl[order(sub_repl$hour),c("Actor_cow", "Reactor_cow","hour", "Bin", "date")]
+  colnames(elo_repl_list)=c("winner","loser","time","bin", "date")
+  elo_repl_list$index <- seq(1, nrow(elo_repl_list))
+  #Calculate the ELO scores
+  elo_res_feed=elo.seq(winner=as.character(elo_repl_list$winner),
+                             loser=as.character(elo_repl_list$loser),
+                             Date=elo_repl_list$date,
+                             k=20,
+                             #presence=presence_comb,
+                             runcheck = F,
+                             progressbar=T)
+  
+  #water bins overall
+  sub_repl <- water
+  sub_repl$index <- seq(1, nrow(sub_repl))
+  ## Order replacements
+  elo_repl_list <- sub_repl[order(sub_repl$hour),c("Actor_cow", "Reactor_cow","hour", "Bin", "date")]
+  colnames(elo_repl_list)=c("winner","loser","time","bin", "date")
+  elo_repl_list$index <- seq(1, nrow(elo_repl_list))
+  #Calculate the ELO scores 
+  elo_res_water = elo.seq(winner=as.character(elo_repl_list$winner),
+                             loser=as.character(elo_repl_list$loser),
+                             Date=elo_repl_list$date,
+                             k=20,
+                             #presence=presence_comb,
+                             runcheck = F,
+                             progressbar=T)
+  
+  #feed bins high THI
+  sub_repl <- feed_high[sample(1:nrow(water_high)),]
+  sub_repl$index <- seq(1, nrow(sub_repl))
+  ## Order replacements
+  elo_repl_list <- sub_repl[order(sub_repl$hour),c("Actor_cow", "Reactor_cow","hour", "Bin", "date")]
+  colnames(elo_repl_list)=c("winner","loser","time","bin", "date")
+  elo_repl_list$index <- seq(1, nrow(elo_repl_list))
+  #Calculate the ELO scores
+  elo_res_feed_high_THI=elo.seq(winner=as.character(elo_repl_list$winner),
+                             loser=as.character(elo_repl_list$loser),
+                             Date=elo_repl_list$date,
+                             k=20,
+                             #presence=presence_comb,
+                             runcheck = F,
+                             progressbar=T)
+  
+  #feed bins low THI
+  sub_repl <- feed_low[sample(1:nrow(water_high)),]
+  sub_repl$index <- seq(1, nrow(sub_repl))
+  ## Order replacements
+  elo_repl_list <- sub_repl[order(sub_repl$hour),c("Actor_cow", "Reactor_cow","hour", "Bin", "date")]
+  colnames(elo_repl_list)=c("winner","loser","time","bin", "date")
+  elo_repl_list$index <- seq(1, nrow(elo_repl_list))
+  #Calculate the ELO scores
+  elo_res_feed_low_THI=elo.seq(winner=as.character(elo_repl_list$winner),
+                             loser=as.character(elo_repl_list$loser),
+                             Date=elo_repl_list$date,
+                             k=20,
+                             #presence=presence_comb,
+                             runcheck = F,
+                             progressbar=T)
+  
+  #water bins high THI
+  sub_repl <- water_high
+  sub_repl$index <- seq(1, nrow(sub_repl))
+  ## Order replacements
+  elo_repl_list <- sub_repl[order(sub_repl$hour),c("Actor_cow", "Reactor_cow","hour", "Bin", "date")]
+  colnames(elo_repl_list)=c("winner","loser","time","bin", "date")
+  elo_repl_list$index <- seq(1, nrow(elo_repl_list))
+  #Calculate the ELO scores 
+  elo_res_water_high_THI=elo.seq(winner=as.character(elo_repl_list$winner),
+                             loser=as.character(elo_repl_list$loser),
+                             Date=elo_repl_list$date,
+                             k=20,
+                             #presence=presence_comb,
+                             runcheck = F,
+                             progressbar=T)
+  
+  #water bins low THI
+  sub_repl <- water_low[sample(1:nrow(water_high)),]
+  sub_repl$index <- seq(1, nrow(sub_repl))
+  ## Order replacements
+  elo_repl_list <- sub_repl[order(sub_repl$hour),c("Actor_cow", "Reactor_cow","hour", "Bin", "date")]
+  colnames(elo_repl_list)=c("winner","loser","time","bin", "date")
+  elo_repl_list$index <- seq(1, nrow(elo_repl_list))
+  #Calculate the ELO scores 
+  elo_res_water_low_THI=elo.seq(winner=as.character(elo_repl_list$winner),
+                             loser=as.character(elo_repl_list$loser),
+                             Date=elo_repl_list$date,
+                             k=20,
+                             #presence=presence_comb,
+                             runcheck = F,
+                             progressbar=T)
+  
+  last_elo_water <- extract_elo(elo_res_water)
+  last_elo_feed <- extract_elo(elo_res_feed)
+  last_elo_water_low_THI <- extract_elo(elo_res_water_low_THI)
+  last_elo_water_high_THI <- extract_elo(elo_res_water_high_THI)
+  last_elo_feed_low_THI <- extract_elo(elo_res_feed_low_THI)
+  last_elo_feed_high_THI <- extract_elo(elo_res_feed_high_THI)
+  
+  cows <- Reduce(intersect, list(names(last_elo_water),names(last_elo_feed)))
+  sorted_last_elo_feed <- last_elo_feed[sort(cows)]
+  sorted_last_elo_water <- last_elo_water[sort(cows)]
+  water_feed_cor <- water_feed_cor + cor.test(x=unname(sorted_last_elo_water), y=unname(sorted_last_elo_feed), method = 'spearman')$estimate
+  
+  low_THI_cows <- Reduce(intersect, list(names(last_elo_water_low_THI),names(last_elo_feed_low_THI)))
+  high_THI_cows <- Reduce(intersect, list(names(last_elo_water_high_THI),names(last_elo_feed_high_THI)))
+  water_cows <- Reduce(intersect, list(names(last_elo_water_low_THI),names(last_elo_water_high_THI)))
+  feed_cows <- Reduce(intersect, list(names(last_elo_feed_low_THI),names(last_elo_feed_high_THI)))
+  sorted_last_elo_feed_low_THI <- last_elo_feed_low_THI[sort(low_THI_cows)]
+  sorted_last_elo_feed_high_THI <- last_elo_feed_high_THI[sort(high_THI_cows)]
+  sorted_last_elo_water_low_THI <- last_elo_water_low_THI[sort(low_THI_cows)]
+  sorted_last_elo_water_high_THI <- last_elo_water_high_THI[sort(high_THI_cows)]
+  
+  water_feed_high_cor <- water_feed_high_cor + cor.test(x=unname(sorted_last_elo_feed_high_THI), y=unname(sorted_last_elo_water_high_THI), method = 'spearman')$estimate
+  water_feed_low_cor <- water_feed_low_cor + cor.test(x=unname(sorted_last_elo_feed_low_THI), y=unname(sorted_last_elo_water_low_THI), method = 'spearman')$estimate
+  water_high_low_cor <- water_high_low_cor + cor.test(x=unname(last_elo_water_low_THI[sort(water_cows)]), y=unname(last_elo_water_high_THI[sort(water_cows)]), method = 'spearman')$estimate
+  feed_high_low_cor <- feed_high_low_cor + cor.test(x=unname(last_elo_feed_low_THI[sort(feed_cows)]), y=unname(last_elo_feed_high_THI[sort(feed_cows)]), method = 'spearman')$estimate
+}
+
+water_feed_cor/num
+water_feed_high_cor/num
+water_feed_low_cor/num
+water_high_low_cor/num
+feed_high_low_cor/num
+```
 
 #### Elo score for Feed bin (Overall)
 ```{r elo score feed, message=TRUE}
-read.csv('../data/replacement_with_THI.csv')
-sub_repl <- replacement_THI %>% filter(Bin_type == 'Feed')
+# read.csv('../data/replacement_with_THI.csv')
+# replacement_THI <- read.csv('../data/filtered_feed.csv')
+# sub_repl <- replacement_THI %>% drop_na()
 #shuffle the rows
-#sub_repl <- sub_repl[sample(1:nrow(sub_repl)),]
+sub_repl <- feed[sample(1:nrow(water)),]
 sub_repl$index <- seq(1, nrow(sub_repl))
 ## Order replacements
 elo_repl_list <- sub_repl[order(sub_repl$hour),c("Actor_cow", "Reactor_cow","hour", "Bin", "date")]
@@ -34,7 +242,7 @@ elo_repl_list$index <- seq(1, nrow(elo_repl_list))
 elo_package_result=elo.seq(winner=as.character(elo_repl_list$winner),
                            loser=as.character(elo_repl_list$loser),
                            Date=elo_repl_list$date,
-                           k=6,
+                           k=20,
                            #presence=presence_comb,
                            runcheck = F,
                            progressbar=T)
@@ -51,7 +259,8 @@ write.csv(logtable3_feed, '../data/logtable3_feed.csv')
 
 #### Elo score for Water bin (Overall)
 ```{r elo score water, message=TRUE}
-sub_repl <- replacement_THI %>% filter(Bin_type == 'Water')
+# replacement_THI <- read.csv('../data/replacement_with_THI.csv')
+sub_repl <- water
 #shuffle the rows
 #sub_repl <- sub_repl[sample(1:nrow(sub_repl)),]
 sub_repl$index <- seq(1, nrow(sub_repl))
@@ -81,9 +290,9 @@ write.csv(logtable3_water, '../data/logtable3_water.csv')
 
 #### Elo score for Feed bin (high THI)(THI_max >= 65)
 ```{r elo score feed, message=TRUE}
-sub_repl <- replacement_THI %>% filter(Bin_type == 'Feed', THI_max >= 65)
+# sub_repl <- replacement_THI %>% filter(Bin_type == 'Feed', THI_max >= 70)
 #shuffle the rows
-#sub_repl <- sub_repl[sample(1:nrow(sub_repl)),]
+sub_repl <- feed_high[sample(1:nrow(water_high)),]
 sub_repl$index <- seq(1, nrow(sub_repl))
 
 ## Order replacements
@@ -95,7 +304,7 @@ elo_repl_list$index <- seq(1, nrow(elo_repl_list))
 elo_package_result=elo.seq(winner=as.character(elo_repl_list$winner),
                            loser=as.character(elo_repl_list$loser),
                            Date=elo_repl_list$date,
-                           k=8,
+                           k=20,
                            #presence=presence_comb,
                            runcheck = F,
                            progressbar=T)
@@ -117,9 +326,9 @@ write.csv(logtable3_feed, '../data/logtable3_feed_high_THI.csv')
 
 #### Elo score for Feed bin (low THI) (THI < 65)
 ```{r elo score feed, message=TRUE}
-sub_repl <- replacement_THI %>% filter(Bin_type == 'Feed', THI_max < 65)
+# sub_repl <- replacement_THI %>% filter(Bin_type == 'Feed', THI_max < 70)
 #shuffle the rows
-#sub_repl <- sub_repl[sample(1:nrow(sub_repl)),]
+sub_repl <- feed_low[sample(1:nrow(water_high)),]
 sub_repl$index <- seq(1, nrow(sub_repl))
 
 ## Order replacements
@@ -131,7 +340,7 @@ elo_repl_list$index <- seq(1, nrow(elo_repl_list))
 elo_package_result=elo.seq(winner=as.character(elo_repl_list$winner),
                            loser=as.character(elo_repl_list$loser),
                            Date=elo_repl_list$date,
-                           k=8,
+                           k=20,
                            #presence=presence_comb,
                            runcheck = F,
                            progressbar=T)
@@ -153,9 +362,9 @@ write.csv(logtable3_feed, '../data/logtable3_feed_low_THI.csv')
 
 #### Elo score for Water bin (high THI)(THI_max >= 65)
 ```{r elo score water, message=TRUE}
-sub_repl <- replacement_THI %>% filter(Bin_type == 'Water', THI_max >= 65)
+# sub_repl <- replacement_THI %>% filter(Bin_type == 'Water', THI_max >= 70)
 #shuffle the rows
-#sub_repl <- sub_repl[sample(1:nrow(sub_repl)),]
+sub_repl <- water_high
 sub_repl$index <- seq(1, nrow(sub_repl))
 
 ## Order replacements
@@ -168,7 +377,7 @@ elo_repl_list$index <- seq(1, nrow(elo_repl_list))
 elo_package_result=elo.seq(winner=as.character(elo_repl_list$winner),
                            loser=as.character(elo_repl_list$loser),
                            Date=elo_repl_list$date,
-                           k=31,
+                           k=20,
                            #presence=presence_comb,
                            runcheck = F,
                            progressbar=T)
@@ -189,9 +398,9 @@ write.csv(logtable3_water, '../data/logtable3_water_high_THI.csv')
 
 #### Elo score for Water bin (low THI)(THI_max < 65)
 ```{r elo score water, message=TRUE}
-sub_repl <- replacement_THI %>% filter(Bin_type == 'Water', THI_max < 65)
+# sub_repl <- replacement_THI %>% filter(Bin_type == 'Water', THI_max < 70)
 #shuffle the rows
-#sub_repl <- sub_repl[sample(1:nrow(sub_repl)),]
+sub_repl <- water_low[sample(1:nrow(water_high)),]
 sub_repl$index <- seq(1, nrow(sub_repl))
 
 ## Order replacements
@@ -204,7 +413,7 @@ elo_repl_list$index <- seq(1, nrow(elo_repl_list))
 elo_package_result=elo.seq(winner=as.character(elo_repl_list$winner),
                            loser=as.character(elo_repl_list$loser),
                            Date=elo_repl_list$date,
-                           k=23,
+                           k=20,
                            #presence=presence_comb,
                            runcheck = F,
                            progressbar=T)
@@ -225,76 +434,76 @@ write.csv(logtable3_water, '../data/logtable3_water_low_THI.csv')
 ### Load tidy datasets
 Now the data is tidied up, This should be run everytime, we start to run this file.
 ```{r load-logtables, message=TRUE}
-read.csv('../data/replacement_with_THI.csv')
-logtable3_water_high_THI <- read.csv('../data/logtable3_water_high_THI.csv')
-logtable3_water_low_THI <- read.csv('../data/logtable3_water_low_THI.csv')
-logtable3_feed_high_THI <- read.csv('../data/logtable3_feed_high_THI.csv')
-logtable3_feed_low_THI <- read.csv('../data/logtable3_feed_low_THI.csv')
-elo_res_water_low_THI <- readRDS('../data/elo_res_water_low_THI.rds')
-elo_res_water_high_THI <- readRDS('../data/elo_res_water_high_THI.rds')
-elo_res_feed_low_THI <- readRDS('../data/elo_res_feed_low_THI.rds')
-elo_res_feed_high_THI <- readRDS('../data/elo_res_feed_high_THI.rds')
+# read.csv('../data/replacement_with_THI.csv')
+# logtable3_water_high_THI <- read.csv('../data/logtable3_water_high_THI.csv')
+# logtable3_water_low_THI <- read.csv('../data/logtable3_water_low_THI.csv')
+# logtable3_feed_high_THI <- read.csv('../data/logtable3_feed_high_THI.csv')
+# logtable3_feed_low_THI <- read.csv('../data/logtable3_feed_low_THI.csv')
+# elo_res_water_low_THI <- readRDS('../data/elo_res_water_low_THI.rds')
+# elo_res_water_high_THI <- readRDS('../data/elo_res_water_high_THI.rds')
+# elo_res_feed_low_THI <- readRDS('../data/elo_res_feed_low_THI.rds')
+# elo_res_feed_high_THI <- readRDS('../data/elo_res_feed_high_THI.rds')
 ```
 
 Generate/merge log table with the original dataset.
 ```{r generate-analysis-table, message=TRUE}
-replacement_THI_water <- replacement_THI %>% filter(Bin_type == 'Water')
-replacement_THI_water$index <-seq(1, nrow(replacement_THI_water))
-selected_repcement_THI_water <- replacement_THI_water %>% select(Bin, Bin_type, Bout_interval, THI_mean, THI_max, THI_min, index)
-cowrep_water <- selected_repcement_THI_water %>%
-          inner_join(logtable3_water, by = c("index"))
-
-replacement_THI_feed <- replacement_THI %>% filter(Bin_type == 'Feed')
-replacement_THI_feed$index <-seq(1, nrow(replacement_THI_feed))
-selected_repcement_THI_feed <- replacement_THI_feed %>% select(Bin, Bin_type, Bout_interval, THI_mean, THI_max, THI_min, index)
-cowrep_feed <- selected_repcement_THI_feed %>%
-          inner_join(logtable3_feed, by = c("index"))
+# replacement_THI_water <- replacement_THI %>% filter(Bin_type == 'Water')
+# replacement_THI_water$index <-seq(1, nrow(replacement_THI_water))
+# selected_repcement_THI_water <- replacement_THI_water %>% select(Bin, Bin_type, Bout_interval, THI_mean, THI_max, THI_min, index)
+# cowrep_water <- selected_repcement_THI_water %>%
+#           inner_join(logtable3_water, by = c("index"))
+# 
+# replacement_THI_feed <- replacement_THI %>% filter(Bin_type == 'Feed')
+# replacement_THI_feed$index <-seq(1, nrow(replacement_THI_feed))
+# selected_repcement_THI_feed <- replacement_THI_feed %>% select(Bin, Bin_type, Bout_interval, THI_mean, THI_max, THI_min, index)
+# cowrep_feed <- selected_repcement_THI_feed %>%
+#           inner_join(logtable3_feed, by = c("index"))
 ```
 
 ## 2. EDA
 
 ```{r EDA-1, message=TRUE}
 # check assumption (1) before we separate them into high/low THI
-18 * length(unique(c(unique(replacement_THI_water$Actor_cow), unique(replacement_THI_water$Reactor_cow)))) <= nrow(replacement_THI_water)
-18 * length(unique(c(unique(replacement_THI_feed$Actor_cow), unique(replacement_THI_feed$Reactor_cow)))) <= nrow(replacement_THI_feed)
-
-
-# check assumption (1) after we separate them into high/low THI
-cowrep_THI_high_water <- cowrep_water %>% filter(THI_max >= 65)
-cowrep_THI_low_water<- cowrep_water %>% filter(THI_max < 65)
-cowrep_THI_high_feed <- cowrep_feed %>% filter(THI_max >= 65)
-cowrep_THI_low_feed <- cowrep_feed %>% filter(THI_max < 65)
-
-
-16 * length(unique(c(unique(cowrep_THI_high_water$winner), unique(cowrep_THI_high_water$loser)))) <= nrow(cowrep_THI_high_water)
-18 * length(unique(c(unique(cowrep_THI_low_water$winner), unique(cowrep_THI_low_water$loser)))) <= nrow(cowrep_THI_low_water)
-18 * length(unique(c(unique(cowrep_THI_high_feed$winner), unique(cowrep_THI_high_feed$loser)))) <= nrow(cowrep_THI_high_feed)
-18 * length(unique(c(unique(cowrep_THI_low_feed$winner), unique(cowrep_THI_low_feed$loser)))) <= nrow(cowrep_THI_low_feed)
-
-
-cowrep_THI_high_water %>% distinct(winner, loser)
-cowrep_THI_high_feed %>% distinct(winner, loser)
-```
-```{r EDA-2, message=FALSE}
-group_THI_List <- list(cowrep_THI_high_water,
-                       cowrep_THI_low_water,
-                       cowrep_THI_high_feed,
-                       cowrep_THI_low_feed)
-
-lapply(group_THI_List, check_consec_dates)
-
-check_consec_dates <- 
-  function(group_THI) {
-  group_THI <- group_THI[order(as.Date(group_THI$date, format="%Y-%m-%d")),]
-  group_THI$consecutive <- c(NA,(diff(as.Date(group_THI$date))))
-  group_THI <- group_THI %>% filter(consecutive > 1)
-  return(group_THI)
-  }
+# 18 * length(unique(c(unique(replacement_THI_water$Actor_cow), unique(replacement_THI_water$Reactor_cow)))) <= nrow(replacement_THI_water)
+# 18 * length(unique(c(unique(replacement_THI_feed$Actor_cow), unique(replacement_THI_feed$Reactor_cow)))) <= nrow(replacement_THI_feed)
+# 
+# 
+# # check assumption (1) after we separate them into high/low THI
+# cowrep_THI_high_water <- cowrep_water %>% filter(THI_max >= 65)
+# cowrep_THI_low_water<- cowrep_water %>% filter(THI_max < 65)
+# cowrep_THI_high_feed <- cowrep_feed %>% filter(THI_max >= 65)
+# cowrep_THI_low_feed <- cowrep_feed %>% filter(THI_max < 65)
+# 
+# 
+# 16 * length(unique(c(unique(cowrep_THI_high_water$winner), unique(cowrep_THI_high_water$loser)))) <= nrow(cowrep_THI_high_water)
+# 18 * length(unique(c(unique(cowrep_THI_low_water$winner), unique(cowrep_THI_low_water$loser)))) <= nrow(cowrep_THI_low_water)
+# 18 * length(unique(c(unique(cowrep_THI_high_feed$winner), unique(cowrep_THI_high_feed$loser)))) <= nrow(cowrep_THI_high_feed)
+# 18 * length(unique(c(unique(cowrep_THI_low_feed$winner), unique(cowrep_THI_low_feed$loser)))) <= nrow(cowrep_THI_low_feed)
+# 
+# 
+# cowrep_THI_high_water %>% distinct(winner, loser)
+# cowrep_THI_high_feed %>% distinct(winner, loser)
+# ```
+# ```{r EDA-2, message=FALSE}
+# group_THI_List <- list(cowrep_THI_high_water,
+#                        cowrep_THI_low_water,
+#                        cowrep_THI_high_feed,
+#                        cowrep_THI_low_feed)
+# 
+# lapply(group_THI_List, check_consec_dates)
+# 
+# check_consec_dates <- 
+#   function(group_THI) {
+#   group_THI <- group_THI[order(as.Date(group_THI$date, format="%Y-%m-%d")),]
+#   group_THI$consecutive <- c(NA,(diff(as.Date(group_THI$date))))
+#   group_THI <- group_THI %>% filter(consecutive > 1)
+#   return(group_THI)
+#   }
 ```
 
 ```{r EDA-3, message=FALSE}
-check_consec_dates(cowrep_feed)
-check_consec_dates(cowrep_water)
+# check_consec_dates(cowrep_feed)
+# check_consec_dates(cowrep_water)
 ```
 
 ```{r EDA-4, message=FALSE}
@@ -313,14 +522,14 @@ elo_res_feed_low_THI <- readRDS('../data/elo_res_feed_low_THI.rds')
 elo_res_feed_high_THI <- readRDS('../data/elo_res_feed_high_THI.rds')
 
 
-#ores_water_low_THI <- optimizek(elo_res_water_low_THI, krange = c(1, 100), resolution = 100)
-#ores_water_low_THI$best
-#ores_water_high_THI <- optimizek(elo_res_water_high_THI, krange = c(1, 100), resolution = 100)
-#ores_water_high_THI$best
-#ores_feed_low_THI <- optimizek(elo_res_feed_low_THI, krange = c(1, 100), resolution = 100)
-#ores_feed_low_THI$best
-#ores_feed_high_THI <- optimizek(elo_res_feed_high_THI, krange = c(1, 100), resolution = 100)
-#ores_feed_high_THI$best
+# ores_water_low_THI <- optimizek(elo_res_water_low_THI, krange = c(1, 100), resolution = 100)
+# ores_water_low_THI$best
+# ores_water_high_THI <- optimizek(elo_res_water_high_THI, krange = c(1, 100), resolution = 100)
+# ores_water_high_THI$best
+# ores_feed_low_THI <- optimizek(elo_res_feed_low_THI, krange = c(1, 100), resolution = 100)
+# ores_feed_low_THI$best
+# ores_feed_high_THI <- optimizek(elo_res_feed_high_THI, krange = c(1, 100), resolution = 100)
+# ores_feed_high_THI$best
 
 
 last_elo_water <- extract_elo(elo_res_water)
@@ -330,8 +539,12 @@ last_elo_water_high_THI <- extract_elo(elo_res_water_high_THI)
 last_elo_feed_low_THI <- extract_elo(elo_res_feed_low_THI)
 last_elo_feed_high_THI <- extract_elo(elo_res_feed_high_THI)
 
-sorted_last_elo_feed <- last_elo_feed[sort(names(last_elo_feed))]
-sorted_last_elo_water <- last_elo_water[sort(names(last_elo_water))]
+cows <- Reduce(intersect, list(names(last_elo_water),names(last_elo_feed)))
+sorted_last_elo_feed <- last_elo_feed[sort(cows)]
+sorted_last_elo_water <- last_elo_water[sort(cows)]
+cor.test(x=unname(sorted_last_elo_water), y=unname(sorted_last_elo_feed), method = 'spearman')
+
+
 low_THI_cows <- Reduce(intersect, list(names(last_elo_water_low_THI),names(last_elo_feed_low_THI)))
 high_THI_cows <- Reduce(intersect, list(names(last_elo_water_high_THI),names(last_elo_feed_high_THI)))
 water_cows <- Reduce(intersect, list(names(last_elo_water_low_THI),names(last_elo_water_high_THI)))
@@ -343,10 +556,31 @@ sorted_last_elo_water_high_THI <- last_elo_water_high_THI[sort(high_THI_cows)]
 
 
 
-cor.test(x=unname(sorted_last_elo_water), y=unname(sorted_last_elo_feed), method = 'spearman')
+
 cor.test(x=unname(sorted_last_elo_feed_high_THI), y=unname(sorted_last_elo_water_high_THI), method = 'spearman')
 cor.test(x=unname(sorted_last_elo_feed_low_THI), y=unname(sorted_last_elo_water_low_THI), method = 'spearman')
 cor.test(x=unname(last_elo_water_low_THI[sort(water_cows)]), y=unname(last_elo_water_high_THI[sort(water_cows)]), method = 'spearman')
 cor.test(x=unname(last_elo_feed_low_THI[sort(feed_cows)]), y=unname(last_elo_feed_high_THI[sort(feed_cows)]), method = 'spearman')
 ```
+```{r elo-steepness, message=FALSE}
+# library(EloSteepness)
+# water_high_matrix <- creatematrix(elo_res_water_high_THI)
+# water_low_matrix <- creatematrix(elo_res_water_low_THI)
+# feed_high_matrix <- creatematrix(elo_res_feed_high_THI)
+# feed_low_matrix <- creatematrix(elo_res_feed_low_THI)
+# 
+# # using small numbers for iterations etc to speed up running time
+# water_high_res <- elo_steepness_from_matrix(water_high_matrix, cores = 2,iter = 50, warmup = 25,refresh = 0, chains = 4, seed = 1)
+# plot_scores(water_high_res)
+# 
+# water_low_res <- elo_steepness_from_matrix(water_low_matrix, cores = 2,iter = 50, warmup = 25,refresh = 0, chains = 4, seed = 1)
+# plot_scores(water_low_res)
+# 
+# feed_high_res <- elo_steepness_from_matrix(feed_high_matrix, cores = 2,iter = 50, warmup = 25,refresh = 0, chains = 4, seed = 1)
+# plot_scores(feed_high_res)
+# 
+# feed_low_res <- elo_steepness_from_matrix(feed_low_matrix, cores = 2,iter = 50, warmup = 25,refresh = 0, chains = 4, seed = 1)
+# plot_scores(feed_low_res)
 
+
+```
