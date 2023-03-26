@@ -1,0 +1,19 @@
+---
+title: "Characterizing dominance in free stall housed dairy cattle based on competitive behavior at the water trough individual report"
+author: 'Helen Chen, Annie Wang, Vivian Zhu'
+output: pdf_document
+fontsize: 12pt
+date: 'Mar,26, 2023'
+
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(error = TRUE)
+knitr::opts_chunk$set(eval = FALSE)
+knitr::opts_chunk$set(fig.width=12, fig.height=6) 
+library(tidyverse)
+library(ggplot2)
+library(lubridate)
+library(EloRating)
+library(ggpubr)
+```
