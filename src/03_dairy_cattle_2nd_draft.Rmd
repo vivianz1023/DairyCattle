@@ -235,8 +235,7 @@ feed_low <- feed_low %>%
    cor.coeff.args = list(method = "spearman", label.sep = "\n"),
    xlab = "Dominance ranks of cows in Feed Bin group",
    ylab = "Dominance ranks of cows in Water Bin group"
-   ) + labs(caption = "Figure 4.1: Correlation between the dominance ranks at 
-            Feed Bin and Water Bin (Overall)")
+   ) + labs(caption = "Figure 4.1: Correlation between the dominance ranks at Feed Bin and Water Bin (Overall)")
 sp_df_f_w
 ```
 The results of the two Spearman correlation tests (Test 2 & 3) show the association between dominance scores estimated from feed bins and water bins is significantly positive, (Test 2: rho_bar = .52; Test 3: rho_bar = .58; Both tests: p< .05 for all 10 trails of sampling analysis). It is key to note that the association in dominance measures between water and feed bins is slightly stronger under low THI levels. The result of Fisher’s z-test (p = .517 < .05) demonstrates that there is insufficient evidence suggesting the two correlations are significantly different. Thus, the association between dominance scores estimated from feed bins and water bins is still not strong regardless of the THI levels. 
@@ -295,8 +294,7 @@ The results of the two Spearman correlation tests (Test 2 & 3) show the associat
    xlab = "Dominance ranks of cows in Feed Bin High THI group",
    ylab = "Dominance ranks of cows in Water Bin High THI group"
    ) + 
-    labs(caption = "Figure 4.2: Correlation between the 
-         dominance ranks at Feed Bin and Water Bin under High THI")
+    labs(caption = "Figure 4.2: Correlation between the dominance ranks at Feed Bin and Water Bin under High THI")
   
   
    # ----------- Test 3 water_feed_low_cor ------------------------------------
@@ -357,8 +355,7 @@ The results of the two Spearman correlation tests (Test 2 & 3) show the associat
    xlab = "Dominance ranks of cows in Feed Bin Low THI group",
    ylab = "Dominance ranks of cows in Water Bin Low THI group"
    ) + 
-    labs(caption = "Figure 4.3: Correlation between the dominance ranks 
-         at Feed Bin and Water Bin under Low THI")
+    labs(caption = "Figure 4.3: Correlation between the dominance ranks at Feed Bin and Water Bin under Low THI")
 ```
   
 
