@@ -1,5 +1,5 @@
 ---
-title: "Characterizing dominance in free stall housed dairy cattle based on competitive behavior at the water trough individual report"
+title: "Characterizing dominance in free stall housed dairy cattle based on competitive behavior at the water trough"
 author: 'Helen Chen, Annie Wang, Vivian Zhu'
 output: pdf_document
 fontsize: 12pt
@@ -17,3 +17,22 @@ library(lubridate)
 library(EloRating)
 library(ggpubr)
 ```
+
+# Summary
+The social hierarchy of individuals is one of the most important concepts in the study of animal social behavior. In this study, we investigate the social hierarchy among a dynamic group of 48 dairy cows as an approach to improve herd management and animal welfare. With the help of automated measures of agonistic interactions (replacements), each cow was assigned a rank within the herd based on its performance in the replacements.  Previous rankings were based on data recorded at feed bins because of the abundance of data. However, little is known about the reliability of estimating the social dominance hierarchy based on cows’ behaviors around water bins. This research study aims to check
+whether the data recorded from the water bin is as reliable as the data recorded from the
+feed bin. Also, the environment, especially the temperature and humidity, will affect the actions of cattle. By the influence of temperature and humidity, cattle tend to compete more often for water due to thirst during summer compared to winter. Therefore, The second objective of this study is to check whether the temperature and humidity affect the data from water bins. By conducting the Elo rating algorithm, Spearman’s rank correlation and VAH algorithm, we discover that rankings computed based on water bins’ data have only moderate correlation with the rankings at feed bins, suggesting there is insufficient evidence to say the replacements recorded at water bins may be reliable in predicting cows’ dominance hierarchy. Moreover, THI actually seems to affect the dominance measure at water bins.
+
+# 1. Introduction
+This study aims to investigate how the involvement of dairy cows in agonistic interactions
+(replacements) among feed bins and water bins are associated with their social hierarchy in the herd. The study examines two hypotheses: (1) the data collected from water bins are as reliable as data from feed bins in measuring the dominance hierarchy of cows, and (2) when THI reaches a threshold, the competition for water is more likely to increase, which affects the dominance measure. This report will mention the data description, statistical methods used to test the two hypotheses, test results, conclusions and further discussions about the tests.
+
+
+
+
+## 2. Data Description and Collection 
+Electronic feed bin and water bin data for agonistic interactions (replacements) were recorded from July 2020 to May 2021 among the population of 48 Holstein dairy cows in a dynamic group. The dynamic group worked as the following: once every 2 weeks, 5 cows would be taken out of the dynamic group and replaced by 5 new cows, which formed multiple stable groups. Moreover, only the healthy cows would be kept in the group and cows could leave and return later. In this dataset, there are 159 cows in total.
+
+In each replacement, the actor cow came and took the bin that the reactor cow is originally at. The IDs of cows involved in replacements were recorded by electronic bins using cows’ ear tag radiofrequency identification (ID). Temperature humidity index (THI) was calculated based on the air temperature and humidity index, which are recorded using HOBO temperature humidity loggers (Onset Computer Corporation, USA) every 5 minutes. For each hour, the average, minimum, and maximum THI was computed to provide a better understanding of how THI varied.
+
+This is an observational study since no treatment is involved to affect the outcome. In total, 180905 replacements were observed with 171622 of them at feed bins and 9283 at water bins. Additionally, no missing data were reported.
