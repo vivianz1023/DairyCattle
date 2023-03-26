@@ -103,6 +103,8 @@ For the remaining comparison tests (second row to fifth row in table 3.5.1), we 
 |  |  |  |
 | Test 5 | Feed bins & High THI | Feed bins & low THI |
 $$\text{Table 3.5.1: Pairwise comparison tests}$$
+
+
 ## 3.6 VAH algorithm 
 
 As introduced in the Elo rating algorithm section, the maximum number of points that were gained or lost at each replacement is a function of k. According to previous studies in this field (cite the paper), we planned to use a fixed k value of 20. Due to the fact that we have much more replacements at feed bins in comparison to the ones at water bins, we can predict a huge gap in the sample size after dividing the groups based on bin types and THI threshold. Therefore, using the same k across all groups would result in distinct dominance score ranges that may not be appropriate to compare against each other. Consequently, we designed the VAH algorithm to solve this problem and it’s as follows.
