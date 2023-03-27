@@ -103,6 +103,8 @@ For the remaining comparison tests (second row to fifth row in table 3.5.1), we 
 |  |  |  |
 | Test 5 | Feed bins & High THI | Feed bins & low THI |
 $$\text{Table 3.5.1: Pairwise comparison tests}$$
+
+
 ## 3.6 VAH algorithm 
 
 As introduced in the Elo rating algorithm section, the maximum number of points that were gained or lost at each replacement is a function of k. According to previous studies in this field (cite the paper), we planned to use a fixed k value of 20. Due to the fact that we have much more replacements at feed bins in comparison to the ones at water bins, we can predict a huge gap in the sample size after dividing the groups based on bin types and THI threshold. Therefore, using the same k across all groups would result in distinct dominance score ranges that may not be appropriate to compare against each other. Consequently, we designed the VAH algorithm to solve this problem and it’s as follows.
@@ -233,8 +235,7 @@ feed_low <- feed_low %>%
    cor.coeff.args = list(method = "spearman", label.sep = "\n"),
    xlab = "Dominance ranks of cows in Feed Bin group",
    ylab = "Dominance ranks of cows in Water Bin group"
-   ) + labs(caption = "Figure 4.1: Correlation between the dominance ranks at 
-            Feed Bin and Water Bin (Overall)")
+   ) + labs(caption = "Figure 4.1: Correlation between the dominance ranks at Feed Bin and Water Bin (Overall)")
 sp_df_f_w
 ```
 The results of the two Spearman correlation tests (Test 2 & 3) show the association between dominance scores estimated from feed bins and water bins is significantly positive, (Test 2: rho_bar = .52; Test 3: rho_bar = .58; Both tests: p< .05 for all 10 trails of sampling analysis). It is key to note that the association in dominance measures between water and feed bins is slightly stronger under low THI levels. The result of Fisher’s z-test (p = .517 < .05) demonstrates that there is insufficient evidence suggesting the two correlations are significantly different. Thus, the association between dominance scores estimated from feed bins and water bins is still not strong regardless of the THI levels. 
@@ -293,8 +294,7 @@ The results of the two Spearman correlation tests (Test 2 & 3) show the associat
    xlab = "Dominance ranks of cows in Feed Bin High THI group",
    ylab = "Dominance ranks of cows in Water Bin High THI group"
    ) + 
-    labs(caption = "Figure 4.2: Correlation between the 
-         dominance ranks at Feed Bin and Water Bin under High THI")
+    labs(caption = "Figure 4.2: Correlation between the dominance ranks at Feed Bin and Water Bin under High THI")
   
   
    # ----------- Test 3 water_feed_low_cor ------------------------------------
@@ -355,8 +355,7 @@ The results of the two Spearman correlation tests (Test 2 & 3) show the associat
    xlab = "Dominance ranks of cows in Feed Bin Low THI group",
    ylab = "Dominance ranks of cows in Water Bin Low THI group"
    ) + 
-    labs(caption = "Figure 4.3: Correlation between the dominance ranks 
-         at Feed Bin and Water Bin under Low THI")
+    labs(caption = "Figure 4.3: Correlation between the dominance ranks at Feed Bin and Water Bin under Low THI")
 ```
   
 
