@@ -281,7 +281,10 @@ for (i in 1:num) {
 # final_water_high_low_cor <- water_high_low_cor/num
 # final_feed_high_low_cor <- feed_high_low_cor/num
 ```
-
+```{r load 50 trails result}
+trailresult_df<- read.csv('../data/trailresult.csv')
+trailresult_df
+```
 ### Calculate fisher's z transformation score
 ```{r fisher-z-transformation, message=TRUE}
 # -----Test 2 final_water_feed_high_cor & 3 final_water_feed_low_cor ------
