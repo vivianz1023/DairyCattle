@@ -60,11 +60,16 @@ feed_low <- feed_low %>%
 
 ### Repeat the same process (num) times 
 ```{r elo loop, message=TRUE}
-water_feed_cor = 0;
-water_feed_high_cor = 0;
-water_feed_low_cor = 0;
-water_high_low_cor = 0;
-feed_high_low_cor = 0;
+# water_feed_cor = 0;
+# water_feed_high_cor = 0;
+# water_feed_low_cor = 0;
+# water_high_low_cor = 0;
+# feed_high_low_cor = 0;
+water_feed_cor <- c();
+water_feed_high_cor <- c();
+water_feed_low_cor <- c();
+water_high_low_cor <- c();
+feed_high_low_cor <- c();
 num <- 10
 for (i in 1:num) {
   # -----------------------------------------* Test 1 *-----------------------------------------
@@ -106,7 +111,7 @@ for (i in 1:num) {
   cows <- Reduce(intersect, list(names(last_elo_water),names(last_elo_feed)))
   sorted_last_elo_feed <- last_elo_feed[sort(cows)]
   sorted_last_elo_water <- last_elo_water[sort(cows)]
-  water_feed_cor <- water_feed_cor + cor.test(x=unname(sorted_last_elo_water), y=unname(sorted_last_elo_feed), method = 'spearman')$estimate
+  water_feed_cor <- append(water_feed_cor,cor.test(x=unname(sorted_last_elo_water), y=unname(sorted_last_elo_feed), method = 'spearman')$estimate)
   
   # -----------------------------------------* Test 2 *-----------------------------------------
   # ----------------------------------------- feed bins high THI -----------------------------------------
@@ -147,7 +152,7 @@ for (i in 1:num) {
   high_THI_cows <- Reduce(intersect, list(names(last_elo_water_high_THI),names(last_elo_feed_high_THI)))
   sorted_last_elo_feed_high_THI <- last_elo_feed_high_THI[sort(high_THI_cows)]
   sorted_last_elo_water_high_THI <- last_elo_water_high_THI[sort(high_THI_cows)]
-  water_feed_high_cor <- water_feed_high_cor + cor.test(x=unname(sorted_last_elo_feed_high_THI), y=unname(sorted_last_elo_water_high_THI), method = 'spearman')$estimate
+  water_feed_high_cor <- append(water_feed_high_cor, cor.test(x=unname(sorted_last_elo_feed_high_THI), y=unname(sorted_last_elo_water_high_THI), method = 'spearman')$estimate)
   
   # -----------------------------------------* Test 3 *-----------------------------------------
   # ----------------------------------------- feed bins low THI -----------------------------------------
@@ -188,7 +193,7 @@ for (i in 1:num) {
   low_THI_cows <- Reduce(intersect, list(names(last_elo_water_low_THI),names(last_elo_feed_low_THI)))
   sorted_last_elo_feed_low_THI <- last_elo_feed_low_THI[sort(low_THI_cows)]
   sorted_last_elo_water_low_THI <- last_elo_water_low_THI[sort(low_THI_cows)]
-  water_feed_low_cor <- water_feed_low_cor + cor.test(x=unname(sorted_last_elo_feed_low_THI), y=unname(sorted_last_elo_water_low_THI), method = 'spearman')$estimate
+  water_feed_low_cor <- append(water_feed_low_cor,cor.test(x=unname(sorted_last_elo_feed_low_THI), y=unname(sorted_last_elo_water_low_THI), method = 'spearman')$estimate)
   
   # -----------------------------------------* Test 4 *-----------------------------------------
   # ----------------------------------------- water bins high THI -----------------------------------------
@@ -227,7 +232,7 @@ for (i in 1:num) {
   last_elo_water_low_THI <- extract_elo(elo_res_water_low_THI)
   last_elo_water_high_THI <- extract_elo(elo_res_water_high_THI)
   water_cows <- Reduce(intersect, list(names(last_elo_water_low_THI),names(last_elo_water_high_THI)))
-   water_high_low_cor <- water_high_low_cor + cor.test(x=unname(last_elo_water_low_THI[sort(water_cows)]), y=unname(last_elo_water_high_THI[sort(water_cows)]), method = 'spearman')$estimate
+   water_high_low_cor <- append(water_high_low_cor, cor.test(x=unname(last_elo_water_low_THI[sort(water_cows)]), y=unname(last_elo_water_high_THI[sort(water_cows)]), method = 'spearman')$estimate)
   
   # -----------------------------------------* Test 5 *-----------------------------------------
   # ----------------------------------------- feed bins high THI -----------------------------------------
@@ -266,15 +271,15 @@ for (i in 1:num) {
   last_elo_feed_low_THI <- extract_elo(elo_res_feed_low_THI)
   last_elo_feed_high_THI <- extract_elo(elo_res_feed_high_THI)
   feed_cows <- Reduce(intersect, list(names(last_elo_feed_low_THI),names(last_elo_feed_high_THI)))
-  feed_high_low_cor <- feed_high_low_cor + cor.test(x=unname(last_elo_feed_low_THI[sort(feed_cows)]), y=unname(last_elo_feed_high_THI[sort(feed_cows)]), method = 'spearman')$estimate
+  feed_high_low_cor <- append(feed_high_low_cor,cor.test(x=unname(last_elo_feed_low_THI[sort(feed_cows)]), y=unname(last_elo_feed_high_THI[sort(feed_cows)]), method = 'spearman')$estimate)
 }
 
 # compute average correlation
-feed_water_cor <- water_feed_cor/num
-final_water_feed_high_cor <- water_feed_high_cor/num
-final_water_feed_low_cor <- water_feed_low_cor/num
-final_water_high_low_cor <- water_high_low_cor/num
-final_feed_high_low_cor <- feed_high_low_cor/num
+# feed_water_cor <- water_feed_cor/num
+# final_water_feed_high_cor <- water_feed_high_cor/num
+# final_water_feed_low_cor <- water_feed_low_cor/num
+# final_water_high_low_cor <- water_high_low_cor/num
+# final_feed_high_low_cor <- feed_high_low_cor/num
 ```
 
 ### Calculate fisher's z transformation score
