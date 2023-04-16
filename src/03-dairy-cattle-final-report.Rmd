@@ -63,16 +63,16 @@ $$\text{Table 1: Variables}$$
 We divided data into two groups according to their bin type (either feed bin or water bin) in order to address the first hypothesis that replacements at the water bins are as reliable as replacements at the feed bins in measuring the dominance hierarchy.  We further divided the two groups into four subgroups based on the THI of replacements in order to examine the second hypothesis which states that when THI reaches a high threshold (65), the competition for water is more likely to increase, which affects the dominance measure. The Elo rating algorithm requires the number of replacements to be at least 15-20 times the number of cows in the group. There were 159 cows observed in the data set and with the help of relevant materials posted by the University of Minnesota (2020), we set the THI threshold to be at 65. Table 2 below shows the number of replacements in each group under different THI thresholds.
 
 
-| Bin Type | THI Level               | Number of Replacements |
-|----------|-------------------------|------------------------|
+| Bin Type |        THI Level        | Number of Replacements |
+|:--------:|:-----------------------:|:----------------------:|
 |          |                         |                        |
-| Water    | high THI(THI_MAX >= 65) | 2595                   |
+|   Water  | high THI(THI_MAX >= 65) |          2595          |
 |          |                         |                        |
-| Water    | low THI(THI_MAX < 65)   | 6688                   |
+|   Water  |  low THI(THI_MAX < 65)  |          6688          |
 |          |                         |                        |
-| Feed     | high THI(THI_MAX >= 65) | 44992                  |
+|   Feed   | high THI(THI_MAX >= 65) |          44992         |
 |          |                         |                        |
-| Feed     | low THI(THI_MAX < 65)   | 126630                 |
+|   Feed   |  low THI(THI_MAX < 65)  |         126630         |
 $$\text{Table 2: Number of replacements in each group based on Bin Type and different THI thresholds}$$
 
 # 3. Statistical Methods
@@ -89,8 +89,7 @@ The relationship between the Elo-ratings from the water bins and the feed bins w
 
 
 |  | Group 1 | Group 2 |
-|---|---|---|
-|  |  |  |
+|---|-----|-----|
 | Test 1 | Feed bins | Water bins |
 |  |  |  |
 | Test 2 | Feed bins & high THI | Water bins & high THI |
@@ -99,7 +98,7 @@ The relationship between the Elo-ratings from the water bins and the feed bins w
 |  |  |  |
 | Test 4 | Water bins & high THI | Water bins & low THI |
 |  |  |  |
-| Test 5 | Feed bins & High THI | Feed bins & low THI |
+| Test 5 | Feed bins & high THI | Feed bins & low THI |
 $$\text{Table 3: Pairwise comparison tests}$$
 
 
@@ -127,8 +126,7 @@ We performed 5 comparison tests in total. Within each test we compared between t
 
 
 |  | Group 1 | Group 2 | Average correlation coefficient ($\overline{rho}$) |
-|---|---|---|:---:|
-|  |  |  |  |
+|---|------|------|:----:|
 | Test 1 | Feed bins | Water bins | .59 |
 |  |  |  |  |
 | Test 2 | Feed bins & high THI | Water bins & high THI | .52 |
@@ -137,7 +135,7 @@ We performed 5 comparison tests in total. Within each test we compared between t
 |  |  |  |  |
 | Test 4 | Water bins & high THI | Water bins & low THI | .55 |
 |  |  |  |  |
-| Test 5 | Feed bins & High THI | Feed bins & low THI | .83 |
+| Test 5 | Feed bins & high THI | Feed bins & low THI | .83 |
 $$\text{Table 4: Spearman’s rank correlation test results on 5 different comparisons using VAH algorithm}$$
 We calculated correlation coefficients (rho) in Test 1 which provided us with the strength of the relationship between the two dominance measures at feed bins and water bins. The results of Test 1 indicate that there is a significant positive association between the two groups (p< .05 for all 50 trials). The box plot in Figure 1 (first from the left) shows the distributions of the 50 correlation coefficients as the result of the VAH algorithm. The strength of the correlation is moderate between water bins and feed bins. Thus, the relationship between dominance scores estimated from feed bins and the ones estimated from water bins is not strong. 
 
