@@ -205,19 +205,15 @@ Foris, B., Lecorps, B., Krahn, J., Weary, D. M., &amp; von Keyserlingk, M. A. G.
 
 # 8. Appendix
 
-### Loading libraries
-```{r Appendix setup, include=FALSE}
+## Loading libraries
+```{r Appendix setup}
 library(tidyverse)
 library(ggplot2)
 library(lubridate)
 library(EloRating)
 ```
 
-### Calculating Elo Score
-
-The following code segment provided by the client will calculate the elo ratings of cows.
-
-#### Sampling replacements
+## Sampling replacements
 ```{r elo score feed, message=TRUE, eval=FALSE}
 # setting up
 all_replacement_THI <- read.csv('../data/replacement_with_THI.csv')
@@ -265,7 +261,7 @@ feed_low <- feed_low %>%
   filter(Actor_cow %in% sub_intersection & Reactor_cow %in% sub_intersection)
 ```
 
-### Repeat the same process (50) times 
+### Repeat the same process & calculating Elo Score (50) times
 ```{r elo loop, message=TRUE, eval=FALSE}
 # water_feed_cor = 0;
 # water_feed_high_cor = 0;
@@ -533,7 +529,7 @@ trailresult_df<- read.csv('../data/trailresult.csv')
 trailresult_df
 ```
 
-### Figure 1 Box Plot Code:
+## Figure 1 Box Plot Code
 ```{r Appendix Results box-plot, eval=FALSE}
 boxplot(trailresult_df,
 main = "Correlation coefficients (rho) calculated from the 5 comparison tests",
@@ -549,7 +545,7 @@ cex.lab=1.2, cex.axis=1.3, cex.main=1.2, cex.sub=1.2
 
 ```
 
-### Two sample t-tests:
+## Two sample t-tests
 ```{r Appendix two-sample-t-test, eval=FALSE}
 t.test(x = trailresult_df$water_feed_high_cor, 
        y = trailresult_df$water_feed_low_cor, 
