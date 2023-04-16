@@ -491,7 +491,7 @@ final_feed_high_low_cor <- feed_high_low_cor/num
 
 # save correlations to a csv file
 trailresult_df <- data.frame(water_feed_cor, water_feed_high_cor, water_feed_low_cor, water_high_low_cor, feed_high_low_cor)
-write.csv(trailresult_df, '../data/trailresult_test.csv')
+write.csv(trailresult_df, '../data/trailresult.csv')
 
 ```
 
