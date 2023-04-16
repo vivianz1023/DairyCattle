@@ -284,6 +284,10 @@ for (i in 1:num) {
 ```{r load 50 trails result}
 trailresult_df<- read.csv('../data/trailresult.csv')
 trailresult_df
+t.test(trailresult_df$water_feed_high_cor, trailresult_df$water_feed_low_cor, 
+       alternative = "two.sided",var.equal = FALSE)
+t.test(trailresult_df$water_high_low_cor, trailresult_df$feed_high_low_cor, 
+       alternative = "two.sided",var.equal = FALSE)
 ```
 ### Calculate fisher's z transformation score
 ```{r fisher-z-transformation, message=TRUE}
