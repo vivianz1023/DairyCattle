@@ -188,7 +188,8 @@ From the three trials, the correlations are very close to each other, suggesting
 
 
 \newpage
-# 7. Reference
+
+# 7. References
 
 Elorating - a brief tutorial - cloud.r-project.org. (n.d.). Retrieved February 26, 2023, from https://cloud.r-project.org/web/packages/EloRating/vignettes/EloRating_tutorial.pdf 
 &nbsp;\
@@ -201,6 +202,7 @@ Armstrong, J. (n.d.). Heat stress in dairy cattle. UMN Extension. Retrieved Febr
 &nbsp;\
 Foris, B., Lecorps, B., Krahn, J., Weary, D. M., &amp; von Keyserlingk, M. A. G. (2021, November 26). The effects of cow dominance on the use of a mechanical brush. Nature News. Retrieved April 15, 2023, from https://www.nature.com/articles/s41598-021-02283-2 
 \newpage
+
 # 8. Appendix
 
 ### Loading libraries
@@ -263,30 +265,26 @@ feed_low <- feed_low %>%
   filter(Actor_cow %in% sub_intersection & Reactor_cow %in% sub_intersection)
 ```
 
-### Repeat the same process (num) times 
+### Repeat the same process (50) times 
 ```{r elo loop, message=TRUE, eval=FALSE}
-water_feed_cor = 0;
-water_feed_high_cor = 0;
-water_feed_low_cor = 0;
-water_high_low_cor = 0;
-feed_high_low_cor = 0;
-
-sig_water_feed_cor = 0;
-sig_water_feed_high_cor = 0;
-sig_water_feed_low_cor = 0;
-sig_water_high_low_cor = 0;
-sig_feed_high_low_cor = 0;
-
-num <- 10
+# water_feed_cor = 0;
+# water_feed_high_cor = 0;
+# water_feed_low_cor = 0;
+# water_high_low_cor = 0;
+# feed_high_low_cor = 0;
+water_feed_cor <- c();
+water_feed_high_cor <- c();
+water_feed_low_cor <- c();
+water_high_low_cor <- c();
+feed_high_low_cor <- c();
+num <- 50
 for (i in 1:num) {
-  # -----------------------------------------* Test 1 *------------
-  # ----------------------------------------- feed bins overall -----
+  # -----------------------------------------* Test 1 *-----------------------------------------
+  # ----------------------------------------- feed bins overall -----------------------------------------
   sub_repl <- feed[sample(1:nrow(water)),]
   sub_repl$index <- seq(1, nrow(sub_repl))
   ## Order replacements
-  elo_repl_list <- sub_repl[order(sub_repl$hour),c("Actor_cow", 
-                                                   "Reactor_cow","hour", 
-                                                   "Bin", "date")]
+  elo_repl_list <- sub_repl[order(sub_repl$hour),c("Actor_cow", "Reactor_cow","hour", "Bin", "date")]
   colnames(elo_repl_list)=c("winner","loser","time","bin", "date")
   elo_repl_list$index <- seq(1, nrow(elo_repl_list))
   #Calculate the ELO scores
@@ -298,13 +296,11 @@ for (i in 1:num) {
                              runcheck = F,
                              progressbar=T)
   
-  # ------------- water bins overall -------------
+  # ----------------------------------------- water bins overall -----------------------------------------
   sub_repl <- water
   sub_repl$index <- seq(1, nrow(sub_repl))
   ## Order replacements
-  elo_repl_list <- sub_repl[order(sub_repl$hour),c("Actor_cow", 
-                                                   "Reactor_cow","hour", 
-                                                   "Bin", "date")]
+  elo_repl_list <- sub_repl[order(sub_repl$hour),c("Actor_cow", "Reactor_cow","hour", "Bin", "date")]
   colnames(elo_repl_list)=c("winner","loser","time","bin", "date")
   elo_repl_list$index <- seq(1, nrow(elo_repl_list))
   #Calculate the ELO scores 
@@ -316,26 +312,20 @@ for (i in 1:num) {
                              runcheck = F,
                              progressbar=T)
   
-  # ----------- calculate feed vs water correlation ---------------
+  # ----------------------------------------- calculate feed vs water correlation -----------------------------------------
   last_elo_water <- extract_elo(elo_res_water)
   last_elo_feed <- extract_elo(elo_res_feed)
   cows <- Reduce(intersect, list(names(last_elo_water),names(last_elo_feed)))
   sorted_last_elo_feed <- last_elo_feed[sort(cows)]
   sorted_last_elo_water <- last_elo_water[sort(cows)]
-  water_feed_test <- cor.test(x=unname(sorted_last_elo_water), 
-                              y=unname(sorted_last_elo_feed), 
-                              method = 'spearman')
-  water_feed_cor <- water_feed_cor + water_feed_test$estimate
-  sig_water_feed_cor <- sig_water_feed_cor + (water_feed_test$p.value < 0.05)
+  water_feed_cor <- append(water_feed_cor,cor.test(x=unname(sorted_last_elo_water), y=unname(sorted_last_elo_feed), method = 'spearman')$estimate)
   
-  # ----------------------------* Test 2 *-------------
-  # ---------------------- feed bins high THI --------------
+  # -----------------------------------------* Test 2 *-----------------------------------------
+  # ----------------------------------------- feed bins high THI -----------------------------------------
   sub_repl <- feed_high[sample(1:nrow(water_high)),]
   sub_repl$index <- seq(1, nrow(sub_repl))
   ## Order replacements
-  elo_repl_list <- sub_repl[order(sub_repl$hour),c("Actor_cow", 
-                                                   "Reactor_cow","hour", 
-                                                   "Bin", "date")]
+  elo_repl_list <- sub_repl[order(sub_repl$hour),c("Actor_cow", "Reactor_cow","hour", "Bin", "date")]
   colnames(elo_repl_list)=c("winner","loser","time","bin", "date")
   elo_repl_list$index <- seq(1, nrow(elo_repl_list))
   #Calculate the ELO scores
@@ -347,13 +337,11 @@ for (i in 1:num) {
                              runcheck = F,
                              progressbar=T)
 
-  # ----------------------------- water bins high THI -------------
+  # ----------------------------------------- water bins high THI -----------------------------------------
   sub_repl <- water_high
   sub_repl$index <- seq(1, nrow(sub_repl))
   ## Order replacements
-  elo_repl_list <- sub_repl[order(sub_repl$hour),
-                            c("Actor_cow", "Reactor_cow",
-                                                   "hour", "Bin", "date")]
+  elo_repl_list <- sub_repl[order(sub_repl$hour),c("Actor_cow", "Reactor_cow","hour", "Bin", "date")]
   colnames(elo_repl_list)=c("winner","loser","time","bin", "date")
   elo_repl_list$index <- seq(1, nrow(elo_repl_list))
   #Calculate the ELO scores 
@@ -365,32 +353,20 @@ for (i in 1:num) {
                              runcheck = F,
                              progressbar=T)
   
-  # -----------calculate feed high THI vs water high THI correlation --
+  # ----------------------------------------- calculate feed high THI vs water high THI correlation -----------------------------------------
   last_elo_water_high_THI <- extract_elo(elo_res_water_high_THI)
   last_elo_feed_high_THI <- extract_elo(elo_res_feed_high_THI)
-  high_THI_cows <- 
-    Reduce(intersect, list(names(last_elo_water_high_THI),
-                           names(last_elo_feed_high_THI)))
-  sorted_last_elo_feed_high_THI <- 
-    last_elo_feed_high_THI[sort(high_THI_cows)]
-  sorted_last_elo_water_high_THI <- 
-    last_elo_water_high_THI[sort(high_THI_cows)]
-  water_feed_high_test <- cor.test(x=unname(sorted_last_elo_feed_high_THI), 
-                                   y=unname(sorted_last_elo_water_high_THI), 
-                                   method = 'spearman')
-  water_feed_high_cor <- water_feed_high_cor + water_feed_high_test$estimate
-  sig_water_feed_high_cor <- sig_water_feed_high_cor + 
-    (water_feed_high_test$p.value < 0.05)
+  high_THI_cows <- Reduce(intersect, list(names(last_elo_water_high_THI),names(last_elo_feed_high_THI)))
+  sorted_last_elo_feed_high_THI <- last_elo_feed_high_THI[sort(high_THI_cows)]
+  sorted_last_elo_water_high_THI <- last_elo_water_high_THI[sort(high_THI_cows)]
+  water_feed_high_cor <- append(water_feed_high_cor, cor.test(x=unname(sorted_last_elo_feed_high_THI), y=unname(sorted_last_elo_water_high_THI), method = 'spearman')$estimate)
   
-  
-  # --------------------* Test 3 *------------------------
-  # ----------------- feed bins low THI --------------
+  # -----------------------------------------* Test 3 *-----------------------------------------
+  # ----------------------------------------- feed bins low THI -----------------------------------------
   sub_repl <- feed_low[sample(1:nrow(water_low)),]
   sub_repl$index <- seq(1, nrow(sub_repl))
   ## Order replacements
-  elo_repl_list <- sub_repl[order(sub_repl$hour),c("Actor_cow", 
-                                                   "Reactor_cow","hour", 
-                                                   "Bin", "date")]
+  elo_repl_list <- sub_repl[order(sub_repl$hour),c("Actor_cow", "Reactor_cow","hour", "Bin", "date")]
   colnames(elo_repl_list)=c("winner","loser","time","bin", "date")
   elo_repl_list$index <- seq(1, nrow(elo_repl_list))
   #Calculate the ELO scores
@@ -402,13 +378,11 @@ for (i in 1:num) {
                              runcheck = F,
                              progressbar=T)
   
-  # ------------- water bins low THI -------------
+  # ----------------------------------------- water bins low THI -----------------------------------------
   sub_repl <- water_low
   sub_repl$index <- seq(1, nrow(sub_repl))
   ## Order replacements
-  elo_repl_list <- sub_repl[order(sub_repl$hour),
-                            c("Actor_cow", "Reactor_cow",
-                                                   "hour", "Bin", "date")]
+  elo_repl_list <- sub_repl[order(sub_repl$hour),c("Actor_cow", "Reactor_cow","hour", "Bin", "date")]
   colnames(elo_repl_list)=c("winner","loser","time","bin", "date")
   elo_repl_list$index <- seq(1, nrow(elo_repl_list))
   #Calculate the ELO scores 
@@ -420,28 +394,20 @@ for (i in 1:num) {
                              runcheck = F,
                              progressbar=T)
   
-  # --------- calculate feed low THI vs water low THI correlation ------
+  # ----------------------------------------- calculate feed low THI vs water low THI correlation -----------------------------------------
   last_elo_water_low_THI <- extract_elo(elo_res_water_low_THI)
   last_elo_feed_low_THI <- extract_elo(elo_res_feed_low_THI)
-  low_THI_cows <- Reduce(intersect, list(names(last_elo_water_low_THI),
-                                         names(last_elo_feed_low_THI)))
+  low_THI_cows <- Reduce(intersect, list(names(last_elo_water_low_THI),names(last_elo_feed_low_THI)))
   sorted_last_elo_feed_low_THI <- last_elo_feed_low_THI[sort(low_THI_cows)]
   sorted_last_elo_water_low_THI <- last_elo_water_low_THI[sort(low_THI_cows)]
-  water_feed_low_test <- cor.test(x=unname(sorted_last_elo_feed_low_THI), 
-                                  y=unname(sorted_last_elo_water_low_THI),
-                                  method = 'spearman')
-  water_feed_low_cor <- water_feed_low_cor + water_feed_low_test$estimate
-  sig_water_feed_low_cor <- sig_water_feed_low_cor + 
-    (water_feed_low_test$p.value < 0.05)
+  water_feed_low_cor <- append(water_feed_low_cor,cor.test(x=unname(sorted_last_elo_feed_low_THI), y=unname(sorted_last_elo_water_low_THI), method = 'spearman')$estimate)
   
-  # --------------* Test 4 *-------------------------
-  # ------------------- water bins high THI ------------
+  # -----------------------------------------* Test 4 *-----------------------------------------
+  # ----------------------------------------- water bins high THI -----------------------------------------
   sub_repl <- water_high
   sub_repl$index <- seq(1, nrow(sub_repl))
   ## Order replacements
-  elo_repl_list <- sub_repl[order(sub_repl$hour),c("Actor_cow", 
-                                                   "Reactor_cow","hour", 
-                                                   "Bin", "date")]
+  elo_repl_list <- sub_repl[order(sub_repl$hour),c("Actor_cow", "Reactor_cow","hour", "Bin", "date")]
   colnames(elo_repl_list)=c("winner","loser","time","bin", "date")
   elo_repl_list$index <- seq(1, nrow(elo_repl_list))
   #Calculate the ELO scores 
@@ -453,13 +419,11 @@ for (i in 1:num) {
                              runcheck = F,
                              progressbar=T)
   
-  # --------------------- water bins low THI --------------
+  # ----------------------------------------- water bins low THI -----------------------------------------
   sub_repl <- water_low[sample(1:nrow(water_high)),]
   sub_repl$index <- seq(1, nrow(sub_repl))
   ## Order replacements
-  elo_repl_list <- sub_repl[order(sub_repl$hour),c("Actor_cow", 
-                                                   "Reactor_cow","hour", 
-                                                   "Bin", "date")]
+  elo_repl_list <- sub_repl[order(sub_repl$hour),c("Actor_cow", "Reactor_cow","hour", "Bin", "date")]
   colnames(elo_repl_list)=c("winner","loser","time","bin", "date")
   elo_repl_list$index <- seq(1, nrow(elo_repl_list))
   #Calculate the ELO scores 
@@ -471,28 +435,18 @@ for (i in 1:num) {
                              runcheck = F,
                              progressbar=T)
   
-  # ---------------- calculate water high THI vs low THI correlation -----
+  # ----------------------------------------- calculate water high THI vs low THI correlation -----------------------------------------
   last_elo_water_low_THI <- extract_elo(elo_res_water_low_THI)
   last_elo_water_high_THI <- extract_elo(elo_res_water_high_THI)
-  water_cows <- Reduce(intersect, 
-                       list(names(last_elo_water_low_THI),
-                            names(last_elo_water_high_THI)))
-  water_high_low_test <- 
-    cor.test(x=unname(last_elo_water_low_THI[sort(water_cows)]), 
-             y=unname(last_elo_water_high_THI[sort(water_cows)]), 
-             method = 'spearman')
-  water_high_low_cor <- water_high_low_cor + water_high_low_test$estimate
-  sig_water_high_low_cor <- sig_water_high_low_cor + 
-    (water_high_low_test$p.value < 0.05)
+  water_cows <- Reduce(intersect, list(names(last_elo_water_low_THI),names(last_elo_water_high_THI)))
+   water_high_low_cor <- append(water_high_low_cor, cor.test(x=unname(last_elo_water_low_THI[sort(water_cows)]), y=unname(last_elo_water_high_THI[sort(water_cows)]), method = 'spearman')$estimate)
   
-  # ------------------* Test 5 *---------------------
-  # ----------------------------- feed bins high THI --------------------
+  # -----------------------------------------* Test 5 *-----------------------------------------
+  # ----------------------------------------- feed bins high THI -----------------------------------------
   sub_repl <- feed_high
   sub_repl$index <- seq(1, nrow(sub_repl))
   ## Order replacements
-  elo_repl_list <- sub_repl[order(sub_repl$hour),
-                            c("Actor_cow", "Reactor_cow",
-                              "hour", "Bin", "date")]
+  elo_repl_list <- sub_repl[order(sub_repl$hour),c("Actor_cow", "Reactor_cow","hour", "Bin", "date")]
   colnames(elo_repl_list)=c("winner","loser","time","bin", "date")
   elo_repl_list$index <- seq(1, nrow(elo_repl_list))
   #Calculate the ELO scores
@@ -504,13 +458,11 @@ for (i in 1:num) {
                              runcheck = F,
                              progressbar=T)
   
-  # ----------------------- feed bins low THI ---------------
+  # ----------------------------------------- feed bins low THI -----------------------------------------
   sub_repl <- feed_low[sample(1:nrow(feed_high)),]
   sub_repl$index <- seq(1, nrow(sub_repl))
   ## Order replacements
-  elo_repl_list <- sub_repl[order(sub_repl$hour),
-                            c("Actor_cow", "Reactor_cow",
-                              "hour", "Bin", "date")]
+  elo_repl_list <- sub_repl[order(sub_repl$hour),c("Actor_cow", "Reactor_cow","hour", "Bin", "date")]
   colnames(elo_repl_list)=c("winner","loser","time","bin", "date")
   elo_repl_list$index <- seq(1, nrow(elo_repl_list))
   #Calculate the ELO scores
@@ -522,20 +474,11 @@ for (i in 1:num) {
                              runcheck = F,
                              progressbar=T)
   
-  # --------- calculate feed high THI vs low THI correlation -------------
+  # ----------------------------------------- calculate feed high THI vs low THI correlation -----------------------------------------
   last_elo_feed_low_THI <- extract_elo(elo_res_feed_low_THI)
   last_elo_feed_high_THI <- extract_elo(elo_res_feed_high_THI)
-  feed_cows <- Reduce(intersect, 
-                      list(names(last_elo_feed_low_THI),
-                           names(last_elo_feed_high_THI)))
-  feed_high_low_test <- 
-    cor.test(x=unname(last_elo_feed_low_THI[sort(feed_cows)]), 
-                                 y=unname(
-                                   last_elo_feed_high_THI[sort(feed_cows)]),
-             method = 'spearman')
-  feed_high_low_cor <- feed_high_low_cor + feed_high_low_test$estimate
-  sig_feed_high_low_cor <- sig_feed_high_low_cor 
-  + (feed_high_low_test$p.value < 0.05)
+  feed_cows <- Reduce(intersect, list(names(last_elo_feed_low_THI),names(last_elo_feed_high_THI)))
+  feed_high_low_cor <- append(feed_high_low_cor,cor.test(x=unname(last_elo_feed_low_THI[sort(feed_cows)]), y=unname(last_elo_feed_high_THI[sort(feed_cows)]), method = 'spearman')$estimate)
 }
 
 # compute average correlation
@@ -545,167 +488,37 @@ final_water_feed_low_cor <- water_feed_low_cor/num
 final_water_high_low_cor <- water_high_low_cor/num
 final_feed_high_low_cor <- feed_high_low_cor/num
 
-sig_water_feed_cor
-sig_water_feed_high_cor
-sig_water_feed_low_cor
-sig_water_high_low_cor
-sig_feed_high_low_cor
+
+# save correlations to a csv file
+trailresult_df <- data.frame(water_feed_cor, water_feed_high_cor, water_feed_low_cor, water_high_low_cor, feed_high_low_cor)
+write.csv(trailresult_df, '../data/trailresult_test.csv')
+
 ```
 
-### Calculate fisher's z transformation score
-```{r fisher-z-transformation, message=TRUE, eval=FALSE}
-# -----Test 2 final_water_feed_high_cor & 3 final_water_feed_low_cor ------
-library(DescTools)
-# ------ COMPARING BETWEEN TEST 2 RHO VS. TEST 3 RHO -----------
-n1 <- length(sorted_last_elo_feed_high_THI) + 
-  length(sorted_last_elo_water_high_THI)
-n2 <- length(sorted_last_elo_feed_low_THI) + 
-  length(sorted_last_elo_water_low_THI)
-z_final_water_feed_high_cor <- FisherZ(final_water_feed_high_cor)
-z_final_water_feed_low_cor <- FisherZ(final_water_feed_low_cor)
-zobs_test23 <-
-  (z_final_water_feed_high_cor-z_final_water_feed_low_cor)/
-  sqrt(1/(n1-3)+1/(n2-3))
-pval_test23 <- 2 * pnorm(-abs(zobs_test23))
-pval_test23
-
-
-# -----Test 4 final_water_high_low_cor & 5 final_feed_high_low_cor ------
-
-# ------ COMPARING BETWEEN TEST 4 RHO VS. TEST 5 RHO -----------
-n1<- length(last_elo_water_low_THI[sort(water_cows)]) + 
-  length(last_elo_water_high_THI[sort(water_cows)])
-n2 <- length(last_elo_feed_low_THI[sort(feed_cows)]) + 
-  length(last_elo_feed_high_THI[sort(feed_cows)])
-z_final_water_high_low_cor <- FisherZ(final_water_high_low_cor)
-z_final_feed_high_low_cor <- FisherZ(final_feed_high_low_cor)
-zobs_test45 <- 
-  (z_final_water_high_low_cor-z_final_feed_high_low_cor)/
-  sqrt(1/(n1-3)+1/(n2-3))
-pval_test45 <- 2 * pnorm(-abs(zobs_test45))
-pval_test45
+```{r Appendix Results-load 50 trails result, eval=FALSE}
+trailresult_df<- read.csv('../data/trailresult.csv')
+trailresult_df
 ```
 
-### Optimize k
+### Figure 1 Box Plot Code:
+```{r Appendix Results box-plot, eval=FALSE}
+boxplot(trailresult_df,
+main = "Correlation coefficients (rho) calculated from the 5 comparison tests",
+xlab = "Comparison test",
+ylab = "Rho",
+col = c("pink","lightblue","lightblue","lightblue","lightblue"),
+border = "brown",
+horizontal = FALSE,
+notch = TRUE,
+names = c("Test 1", "Test 2", "Test 3", "Test 4", "Test 5"),
+cex.lab=1.2, cex.axis=1.3, cex.main=1.2, cex.sub=1.2
+)
 
-```{r optimization, message=FALSE, eval=FALSE}
-elo_res_water <- readRDS('../data/elo_res_water.rds')
-elo_res_feed <- readRDS('../data/elo_res_feed.rds')
-elo_res_water_low_THI <- readRDS('../data/elo_res_water_low_THI.rds')
-elo_res_water_high_THI <- readRDS('../data/elo_res_water_high_THI.rds')
-elo_res_feed_low_THI <- readRDS('../data/elo_res_feed_low_THI.rds')
-elo_res_feed_high_THI <- readRDS('../data/elo_res_feed_high_THI.rds')
-
-#optimize k
-ores_water <- optimizek(elo_res_water, krange = c(1, 100), resolution = 100)
-ores_water$best
-
-ores_feed <- optimizek(elo_res_feed, krange = c(1, 100), resolution = 100)
-ores_feed$best
-
-ores_water_low_THI <-
-  optimizek(elo_res_water_low_THI, krange = c(1, 100), resolution = 100)
-ores_water_low_THI$best
-ores_water_high_THI <-
-  optimizek(elo_res_water_high_THI, krange = c(1, 100), resolution = 100)
-ores_water_high_THI$best
-ores_feed_low_THI <-
-  optimizek(elo_res_feed_low_THI, krange = c(1, 100), resolution = 100)
-ores_feed_low_THI$best
-ores_feed_high_THI <-
-  optimizek(elo_res_feed_high_THI, krange = c(1, 100), resolution = 100)
-ores_feed_high_THI$best
 ```
 
-### Figure 4.1 code:
-```{r appendix Results-correlation plot 1, message=TRUE, eval=FALSE}
-  df_f_w <- data.frame(x = rank(unname(sorted_last_elo_feed), ties.method = 
-                                  'average'), 
-                       y = rank(unname(sorted_last_elo_water), 
-                                ties.method = 'average'))
-  sp_df_f_w <- ggscatter(df_f_w, x = 'x', y = 'y',
-   add = "reg.line",  # Add regression line
-   add.params = list(color = "blue", fill = "lightgray"),
-   conf.int = TRUE, # Add confidence interval
-   cor.coeff.args = list(method = "spearman", label.sep = "\n"),
-   xlab = "Dominance ranks of cows in Feed Bin group",
-   ylab = "Dominance ranks of cows in Water Bin group"
-   ) + labs(caption = "Figure 4.1: 
-            Correlation between the 
-            dominance ranks at Feed Bin and Water Bin (Overall)")
-sp_df_f_w
-```
-### Figure 4.2 code:
-```{r appendix Results-correlation plot 2, message=TRUE, eval=FALSE}
-df_fh_wh <- data.frame(x = rank(unname(sorted_last_elo_feed_high_THI), 
-                                ties.method = 'average'), 
-                       y = rank(unname(sorted_last_elo_water_high_THI), 
-                                ties.method = 'average'))
-  sp_df_fh_wh <- ggscatter(df_fh_wh, x = 'x', y = 'y',
-   add = "reg.line",  # Add regression line
-   add.params = list(color = "blue", fill = "lightgray"), 
-   conf.int = TRUE, # Add confidence interval
-   cor.coeff.args = list(method = "spearman"),
-   xlab = "Dominance ranks of cows in Feed Bin High THI group",
-   ylab = "Dominance ranks of cows in Water Bin High THI group"
-   ) + 
-    labs(caption = "Figure 4.2: Correlation between the dominance ranks at 
-         Feed Bin and Water Bin under High THI")
-  
-```
-### Figure 4.3 code:
-```{r appendix Results-correlation plots 3, message=TRUE, eval=FALSE}
-df_fl_wl <- data.frame(x = rank(unname(sorted_last_elo_feed_low_THI), 
-                                ties.method = 'average'), 
-                       y = rank(unname(sorted_last_elo_water_low_THI), 
-                                ties.method = 'average'))
-  
-  sp_df_fl_wl <- ggscatter(df_fl_wl, x = 'x', y = 'y',
-   add = "reg.line",  # Add regression line
-   add.params = list(color = "blue", fill = "lightgray"),
-   conf.int = TRUE, # Add confidence interval
-   cor.coeff.args = list(method = "spearman", label.sep = "\n"),
-   xlab = "Dominance ranks of cows in Feed Bin Low THI group",
-   ylab = "Dominance ranks of cows in Water Bin Low THI group"
-   ) + labs(caption = "Figure 4.3: Correlation between the dominance 
-            ranks at Feed Bin and Water Bin under Low THI")
+### Two sample t-tests:
+```{r Appendix two-sample-t-test, eval=FALSE}
+t.test(x = trailresult_df$water_feed_high_cor, y = trailresult_df$water_feed_low_cor, paired = FALSE, alternative = "two.sided")
+t.test(x = trailresult_df$water_high_low_cor, y = trailresult_df$feed_high_low_cor, paired = FALSE, alternative = "two.sided")
 ```
 
-### Figure 4.4 code:
-```{r appendix Results-correlation plots 4, message=TRUE, eval=FALSE}
-df_wh_wl <- data.frame(x = rank(unname(
-  last_elo_water_high_THI[sort(water_cows)]), 
-                                ties.method = 'average'), 
-                       y = rank(unname(
-                         last_elo_water_low_THI[sort(water_cows)]), 
-                                ties.method = 'average'))
-  
-  sp_df_wh_wl <- ggscatter(df_wh_wl, x = 'x', y = 'y',
-     add = "reg.line",  # Add regression line
-     add.params = list(color = "blue", fill = "lightgray"),
-     conf.int = TRUE, # Add confidence interval
-     cor.coeff.args = list(method = "spearman", label.sep = "\n"),
-     xlab = "Dominance ranks of cows in Water Bin High THI group",
-     ylab = "Dominance ranks of cows in Water Bin Low THI group"
-     ) + labs(caption = "Figure 4.4: Correlation between the dominance ranks 
-              at Water Bin under High THI vs under Low THI")
-```
-
-### Figure 4.5 code:
-```{r appendix Results-correlation plots 5, message=TRUE, eval=FALSE}
-df_fh_fl <- data.frame(x = rank(unname(
-  last_elo_feed_high_THI[sort(feed_cows)]), 
-                                ties.method = 'average'), 
-                       y = rank(unname(
-                         last_elo_feed_low_THI[sort(feed_cows)]), 
-                                ties.method = 'average'))
-  sp_df_fh_fl <- ggscatter(df_fh_fl, x = 'x', y = 'y',
-     add = "reg.line",  # Add regression line
-     add.params = list(color = "blue", fill = "lightgray"),
-     conf.int = TRUE, # Add confidence interval
-     cor.coeff.args = list(method = "spearman", label.sep = "\n"),
-     xlab = "Dominance ranks of cows in Feed Bin High THI group",
-     ylab = "Dominance ranks of cows in Feed Bin Low THI group"
-     ) + labs(caption = "Figure 4.5: Correlation between the dominance ranks 
-              at Feed Bin under High THI vs under Low THI")
-```
