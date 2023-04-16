@@ -22,7 +22,7 @@ The purpose of this report is to investigate how the involvement of dairy cows i
 
 This study aims to check whether the data recorded from the water bin is as reliable as the data recorded from the feed bins. By the influence of temperature and humidity, cattle tend to compete more often for water due to thirst during summer compared to winter. Therefore, the second objective of this study is to check whether the temperature and humidity affect the dominance hierarchy measured from the data at water bins. The study examines two hypotheses: (1) the data collected from water bins are as reliable as data from feed bins in measuring the dominance hierarchy of cows, and (2) when THI reaches a threshold of 65, the competition for water is more likely to increase, which affects the dominance measure. To investigate the two hypotheses, we performed a series of statistical analysis tasks. We used the Elo rating algorithm to calculate cow's dominance scores and Spearman’s rank correlation test for comparing the similarities between ranks in different groups. Then we used two-sample t-tests to investigate if the difference between two correlation coefficients is statistically significant; Furthermore, we integrated the VAH algorithm which is an undersampling algorithm to account for inconsistencies introduced through random sampling.
 
-The following introduces the structure of the remainder of this report. Section 2 describes the data set and the data clustering process. Section 3 introduces statistical methods (i.e., Elo rating algorithm, Spearman’s rank correlation test, VAH algorithm, and two-sample t-test) and applies these methods to test the two hypotheses. Section 4 presents the results obtained from performing the statistical analysis. Lastly, sections 5 and 6 discuss the conclusions and limitations of this study.
+The following introduces the structure of the remainder of this report. Section 2 describes the data set and the data clustering process. Section 3 introduces statistical methods (i.e., Elo rating algorithm, Spearman’s rank correlation test, VAH algorithm, and two-sample t-test) and applies these methods to test the two hypotheses. Section 4 presents the results obtained from performing the statistical analysis. Lastly, sections 5 and 6 discuss the conclusions and limitation of this study.
 
 
 
@@ -138,7 +138,7 @@ We performed 5 comparison tests in total. Within each test we compared between t
 | Test 4 | Water bins & high THI | Water bins & low THI | .55 |
 |  |  |  |  |
 | Test 5 | Feed bins & High THI | Feed bins & low THI | .83 |
-$$\text{Table 4: Spearman’s rank correlation test results on 5 different comparisons using VAH algorithm.}$$
+$$\text{Table 4: Spearman’s rank correlation test results on 5 different comparisons using VAH algorithm}$$
 We calculated correlation coefficients (rho) in Test 1 which provided us with the strength of the relationship between the two dominance measures at feed bins and water bins. The results of Test 1 indicate that there is a significant positive association between the two groups (p< .05 for all 50 trials). The box plot in Figure 1 (first from the left) shows the distributions of the 50 correlation coefficients as the result of the VAH algorithm. The strength of the correlation is moderate between water bins and feed bins. Thus, the relationship between dominance scores estimated from feed bins and the ones estimated from water bins is not strong. 
 
 The results of the two Spearman correlation tests (Tests 2 & 3) show a significantly positive association between dominance scores estimated from feed bins and water bins (Both tests: p< .05 for all 50 trials of sampling analysis). The correlation in dominance measures between water and feed bins is slightly stronger under low THI levels. The two box plots in Figure 1 (second and third from the left) below show the distributions of the two test results and illustrate that a High THI level significantly weakens the correlation between dominance measures at the two bin types. The result of two sample t-tests (t = -9.48; p < .05) indicates that under different THI levels (low/high THI), there is a significant difference in the associations of dominance hierarchy captured at feed bins and water bins.
@@ -152,9 +152,8 @@ trailresult_df<- read.csv('../data/trailresult.csv')
 trailresult_df
 
 ```
-```{r box-plot, echo=FALSE, message=FALSE}
+```{r box-plot, echo=FALSE, message=FALSE, fig.cap= "Distributions of the correlation coefficients for Test 1-5"}
 boxplot(trailresult_df,
-main = "Correlation coefficients (rho) calculated from the 5 comparison tests",
 xlab = "Comparison test",
 ylab = "Rho",
 col = c("pink","lightblue","lightblue","lightblue","lightblue"),
@@ -198,7 +197,9 @@ Neumann, Christof, et al. “Assessing Dominance Hierarchies: Validation and Adv
 &nbsp;\
 &nbsp;\
 Armstrong, J. (n.d.). Heat stress in dairy cattle. UMN Extension. Retrieved February 25, 2023, from https://extension.umn.edu/dairy-milking-cows/heat-stress-dairy-cattle 
-
+&nbsp;\
+&nbsp;\
+Foris, B., Lecorps, B., Krahn, J., Weary, D. M., &amp; von Keyserlingk, M. A. G. (2021, November 26). The effects of cow dominance on the use of a mechanical brush. Nature News. Retrieved April 15, 2023, from https://www.nature.com/articles/s41598-021-02283-2 
 \newpage
 # 8. Appendix
 
